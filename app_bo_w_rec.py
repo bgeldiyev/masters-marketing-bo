@@ -37,19 +37,23 @@ st.markdown("""
         object-fit: cover !important; border-radius: 8px; border: 1px solid #eee;
     }
 
-    /* --- THE CUSTOM GRAY PANEL (FIXED) --- */
+    /* --- THE GRAY PANEL BACKGROUND FIX --- */
     .gray-rec-panel {
-        background-color: #666666 !important; /* Medium-Dark Gray */
-        padding: 30px;
+        background-color: #555555 !important; /* Solid Mid-Dark Gray */
+        padding: 30px !important;
         border-radius: 15px;
-        border: 1px solid #888888;
-        margin-bottom: 25px;
-        margin-top: 10px;
+        border: 1px solid #777777;
+        margin: 25px 0px !important;
+        width: 100%;
     }
     
-    /* Ensure all text inside the gray panel is white */
-    .gray-rec-panel h3, .gray-rec-panel p, .gray-rec-panel b, .gray-rec-panel span, .gray-rec-panel div {
-        color: white !important;
+    /* Force all text inside the gray box to be white */
+    .gray-rec-panel h3, 
+    .gray-rec-panel p, 
+    .gray-rec-panel b, 
+    .gray-rec-panel span,
+    .gray-rec-panel div {
+        color: #FFFFFF !important;
     }
 
     /* Detail View Image Styling */
@@ -58,7 +62,7 @@ st.markdown("""
         border-radius: 4px; border: 1px solid #ddd; object-fit: contain !important;
     }
 
-    /* Rating & Prices */
+    /* Rating & Prices Defaults */
     .rating-text { color: #f39c12; font-weight: bold; font-size: 14px; margin: 0; }
     .price-text { font-size: 18px; font-weight: bold; color: #333; margin: 0; }
     .color-circle {
@@ -135,22 +139,27 @@ if not all_images:
 else:
     if st.session_state.user_interest is None:
         for r in range(4):
-            # THE RECOMMENDATION PANEL
+            # --- THE RECOMMENDATION PANEL (WITH FIXED BACKGROUND) ---
             if r == 1 and st.session_state.viewed_history:
-                # Custom HTML wrapper to force the gray background
+                # Open the background container
                 st.markdown('<div class="gray-rec-panel">', unsafe_allow_html=True)
                 st.subheader("Similar to what you just viewed")
+                
+                # Content inside the gray box
                 rel_cols = st.columns(5) 
                 for i in range(5):
                     if i < len(back_images):
                         with rel_cols[i]:
                             st.image(back_images[i])
                             st.markdown(f"**{BACK_TITLES[i]}**")
-                            st.markdown(f'<p class="rating-text" style="color: #f1c40f !important;">{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})</p>', unsafe_allow_html=True)
-                            st.markdown(f'<p class="price-text" style="color: white !important;">{BACK_PRICES[i]}</p>', unsafe_allow_html=True)
+                            # Explicit white/yellow labels for visibility on gray
+                            st.markdown(f'<p style="color:#f1c40f !important; margin:0; font-weight:bold;">{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})</p>', unsafe_allow_html=True)
+                            st.markdown(f'<p style="color:white !important; margin:0; font-weight:bold; font-size:16px;">{BACK_PRICES[i]}</p>', unsafe_allow_html=True)
+                
+                # Close the background container
                 st.markdown('</div>', unsafe_allow_html=True)
 
-            # GRID
+            # --- NORMAL PRODUCT GRID ---
             cols = st.columns(4)
             for c in range(4):
                 idx = r * 4 + c

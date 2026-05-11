@@ -115,4 +115,45 @@ else:
         st.write("### Editions")
         sub1, sub2, _ = st.columns([1, 1, 1.5])
         if len(all_images) > 17:
-            with sub1: st.markdown
+            with sub1: st.markdown('<div class="small-img">', unsafe_allow_html=True); st.image(all_images[16]); st.markdown('</div>', unsafe_allow_html=True)
+            with sub2: st.markdown('<div class="small-img">', unsafe_allow_html=True); st.image(all_images[17]); st.markdown('</div>', unsafe_allow_html=True)
+                
+    with c_buy:
+        title_col, heart_col = st.columns([5, 1])
+        title_col.header(item['name'])
+        if heart_col.button("❤️" if st.session_state.liked else "🤍", key="h_btn"):
+            st.session_state.liked = not st.session_state.liked
+            st.rerun()
+            
+        st.markdown(f'<p class="rating-text" style="font-size:18px;">{get_star_string(item["rating"])} ({item["rating"]})</p>', unsafe_allow_html=True)
+        st.subheader(item['price'])
+        
+        st.write("**Colors**")
+        c_cols = st.columns([1, 1, 1, 6])
+        for i, color in enumerate(["gray", "white", "black"]):
+            c_cols[i].markdown(f'<div class="color-circle" style="background-color: {color};"></div>', unsafe_allow_html=True)
+            
+        st.write("**Size**")
+        s_cols = st.columns(5)
+        for i, s in enumerate(["42", "43", "44", "45", "46"]): s_cols[i].button(s, key=f"sz_{s}")
+        
+        st.divider()
+        if st.button("ADD TO CART", use_container_width=True, type="primary"):
+            st.session_state.cart_count += 1
+            st.toast("Added!")
+
+    # --- DOCKER (3 SECOND DELAY) ---
+    docker_slot = st.empty()
+    time.sleep(3) 
+    with docker_slot.container():
+        st.write("---")
+        _, mid, _ = st.columns([0.5, 3, 0.5])
+        with mid:
+            st.subheader("Because you viewed this, you may also like")
+            rel_cols = st.columns(4)
+            for i, r_idx in enumerate([11, 10, 3, 14]):
+                with rel_cols[i]:
+                    st.image(all_images[r_idx])
+                    st.markdown(f"**{PRODUCT_TITLES[r_idx]}**")
+                    st.markdown(f'<p class="rating-text">{get_star_string(PRODUCT_RATINGS[r_idx])}</p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="price-text" style="font-size:15px;">{PRODUCT_PRICES[r_idx]}</p>', unsafe_allow_html=True)

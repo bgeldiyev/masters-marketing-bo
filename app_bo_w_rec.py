@@ -1,18 +1,24 @@
 import pandas as pd
 import streamlit as st
 
+import streamlit.components.v1 as components
+
 from datetime import datetime
 
 import os
 import random
 
-# --- 1. CONFIG ---
+# =========================================================
+# CONFIG
+# =========================================================
 st.set_page_config(
     page_title="Best Shop | Mixed Portfolio",
     layout="wide"
 )
 
-# --- 2. CSS ---
+# =========================================================
+# CSS
+# =========================================================
 st.markdown("""
 <style>
 
@@ -70,7 +76,6 @@ st.markdown("""
     color: white;
 }
 
-/* GRID IMAGES */
 .stImage > img {
     width: 100% !important;
     height: 300px !important;
@@ -79,7 +84,6 @@ st.markdown("""
     border: 1px solid #eee;
 }
 
-/* DETAIL IMAGE */
 .detail-main-img img {
     max-height: 300px !important;
     width: auto !important;
@@ -133,7 +137,9 @@ button[kind="primary"] {
 </style>
 """, unsafe_allow_html=True)
 
-# --- 3. DATA ---
+# =========================================================
+# DATA
+# =========================================================
 IMAGE_FOLDER = "./Pictures_New"
 BACK_FOLDER = "./Pictures_Back"
 
@@ -170,38 +176,18 @@ PRODUCT_RATINGS = [
     4.4, 4.2, 4.6, 4.5
 ]
 
-BACK_TITLES = [
-    "Top Rated Choice",
-    "Style Inspired by You",
-    "Performance Pick",
-    "Season's Best",
-    "New Arrival"
-]
-
-BACK_PRICES = [
-    "$160.00",
-    "$49.99",
-    "$60.00",
-    "$43.99",
-    "$65.00"
-]
-
-BACK_RATINGS = [
-    4.7,
-    4.1,
-    4.3,
-    4.4,
-    4.4
-]
-
-# --- 4. HELPERS ---
+# =========================================================
+# HELPERS
+# =========================================================
 def get_star_string(rating):
     return ("★" * int(rating)) + ("☆" * (5 - int(rating)))
 
 def get_images(folder):
+
     valid = ('.png', '.jpg', '.jpeg', '.webp', '.avif')
 
     if os.path.exists(folder):
+
         files = [
             os.path.join(folder, f)
             for f in os.listdir(folder)
@@ -212,7 +198,9 @@ def get_images(folder):
 
     return []
 
-# --- 5. STATE ---
+# =========================================================
+# SESSION STATE
+# =========================================================
 if 'user_interest' not in st.session_state:
     st.session_state.user_interest = None
 
@@ -222,46 +210,18 @@ if 'cart_count' not in st.session_state:
 if 'liked' not in st.session_state:
     st.session_state.liked = False
 
-if 'viewed_history' not in st.session_state:
-    st.session_state.viewed_history = False
-
-# --- 6. LOAD IMAGES ---
+# =========================================================
+# LOAD IMAGES
+# =========================================================
 all_images = get_images(IMAGE_FOLDER)
-back_images = get_images(BACK_FOLDER)
 
-# --- 7. SIDEBAR ---
-if st.session_state.user_interest is None:
-
-    with st.sidebar:
-
-        st.header("Refine Search")
-        st.divider()
-
-        st.subheader("Category")
-
-        st.checkbox("Running", value=True)
-        st.checkbox("Training")
-        st.checkbox("Lifestyle")
-
-        st.subheader("Price Range")
-
-        st.slider(
-            "Filter by Price",
-            0,
-            300,
-            (40, 200)
-        )
-
-        if st.button(
-            "Reset All Filters",
-            use_container_width=True
-        ):
-            st.rerun()
-
-# --- 8. HEADER ---
+# =========================================================
+# HEADER
+# =========================================================
 t1, t2, t3 = st.columns([2, 2, 1.2])
 
 with t1:
+
     st.markdown(
         '''
         <div class="logo-container">
@@ -273,6 +233,7 @@ with t1:
     )
 
 with t2:
+
     st.text_input(
         "Search",
         placeholder="Search brand or style...",
@@ -280,6 +241,7 @@ with t2:
     )
 
 with t3:
+
     st.markdown(
         f"""
         <p style='text-align:right;
@@ -306,68 +268,21 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- 9. MAIN CONTENT ---
+# =========================================================
+# MAIN CONTENT
+# =========================================================
 if not all_images:
 
-    st.info("Please add images to the folder.")
+    st.info("Please add images to Pictures_New folder.")
 
 else:
 
-    # =========================================================
-    # GRID VIEW
-    # =========================================================
+    # =====================================================
+    # PRODUCT GRID
+    # =====================================================
     if st.session_state.user_interest is None:
 
         for r in range(4):
-
-            if r == 1 and st.session_state.viewed_history:
-
-                with st.container():
-
-                    st.markdown(
-                        '<div class="rec-container">',
-                        unsafe_allow_html=True
-                    )
-
-                    st.subheader("Similar to what you just viewed")
-
-                    rel_cols = st.columns(5)
-
-                    for i in range(5):
-
-                        with rel_cols[i]:
-
-                            if i < len(back_images):
-
-                                st.image(back_images[i])
-
-                                st.markdown(
-                                    f"**{BACK_TITLES[i]}**"
-                                )
-
-                                st.markdown(
-                                    f'''
-                                    <p class="rating-text">
-                                    {get_star_string(BACK_RATINGS[i])}
-                                    ({BACK_RATINGS[i]})
-                                    </p>
-                                    ''',
-                                    unsafe_allow_html=True
-                                )
-
-                                st.markdown(
-                                    f'''
-                                    <p class="price-text">
-                                    {BACK_PRICES[i]}
-                                    </p>
-                                    ''',
-                                    unsafe_allow_html=True
-                                )
-
-                    st.markdown(
-                        '</div>',
-                        unsafe_allow_html=True
-                    )
 
             cols = st.columns(4)
 
@@ -386,21 +301,21 @@ else:
                         )
 
                         st.markdown(
-                            f'''
+                            f"""
                             <p class="rating-text">
                             {get_star_string(PRODUCT_RATINGS[idx])}
                             ({PRODUCT_RATINGS[idx]})
                             </p>
-                            ''',
+                            """,
                             unsafe_allow_html=True
                         )
 
                         st.markdown(
-                            f'''
+                            f"""
                             <p class="price-text">
                             {PRODUCT_PRICES[idx]}
                             </p>
-                            ''',
+                            """,
                             unsafe_allow_html=True
                         )
 
@@ -409,9 +324,6 @@ else:
                             key=f"btn_{idx}",
                             use_container_width=True
                         ):
-
-                            if idx == 1:
-                                st.session_state.viewed_history = True
 
                             st.session_state.user_interest = {
                                 "idx": idx,
@@ -423,9 +335,9 @@ else:
 
                             st.rerun()
 
-    # =========================================================
+    # =====================================================
     # PRODUCT DETAIL PAGE
-    # =========================================================
+    # =====================================================
     else:
 
         item = st.session_state.user_interest
@@ -439,7 +351,9 @@ else:
             [0.6, 1, 0.3, 1, 0.6]
         )
 
-        # ---------------- IMAGE COLUMN ----------------
+        # =================================================
+        # IMAGE COLUMN
+        # =================================================
         with c_img:
 
             st.markdown(
@@ -454,43 +368,9 @@ else:
                 unsafe_allow_html=True
             )
 
-            st.write("### Editions")
-
-            sub1, sub2, _ = st.columns([1, 1, 1.5])
-
-            if len(all_images) >= 17:
-
-                with sub1:
-
-                    st.markdown(
-                        '<div class="small-img">',
-                        unsafe_allow_html=True
-                    )
-
-                    st.image(all_images[16])
-
-                    st.markdown(
-                        '</div>',
-                        unsafe_allow_html=True
-                    )
-
-            if len(all_images) >= 18:
-
-                with sub2:
-
-                    st.markdown(
-                        '<div class="small-img">',
-                        unsafe_allow_html=True
-                    )
-
-                    st.image(all_images[17])
-
-                    st.markdown(
-                        '</div>',
-                        unsafe_allow_html=True
-                    )
-
-        # ---------------- BUY COLUMN ----------------
+        # =================================================
+        # BUY COLUMN
+        # =================================================
         with c_buy:
 
             title_col, heart_col = st.columns([5, 1])
@@ -509,13 +389,13 @@ else:
                 st.rerun()
 
             st.markdown(
-                f'''
+                f"""
                 <p class="rating-text"
                 style="font-size:18px;">
                 {get_star_string(item["rating"])}
                 ({item["rating"]})
                 </p>
-                ''',
+                """,
                 unsafe_allow_html=True
             )
 
@@ -530,11 +410,11 @@ else:
             ):
 
                 c_cols[i].markdown(
-                    f'''
+                    f"""
                     <div class="color-circle"
                     style="background-color:{color};">
                     </div>
-                    ''',
+                    """,
                     unsafe_allow_html=True
                 )
 
@@ -542,9 +422,11 @@ else:
 
             s_cols = st.columns(5)
 
-            for s in ["42", "43", "44", "45", "46"]:
+            for i, s in enumerate(
+                ["42", "43", "44", "45", "46"]
+            ):
 
-                s_cols[int(s)-42].button(
+                s_cols[i].button(
                     s,
                     key=f"sz_{s}",
                     use_container_width=True
@@ -570,9 +452,9 @@ else:
                 use_container_width=True
             )
 
-        # =========================================================
+        # =================================================
         # FLOATING RECOMMENDATION DOCK
-        # =========================================================
+        # =================================================
         rel_indices = [11, 10, 3, 14]
 
         recommend_cards = ""
@@ -603,7 +485,19 @@ else:
                 """
 
         dock_html = f"""
+        <!DOCTYPE html>
+        <html>
+
+        <head>
+
         <style>
+
+        body {{
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: transparent;
+        }}
 
         #recommend-dock {{
 
@@ -612,10 +506,9 @@ else:
             left: 50%;
             transform: translateX(-50%);
 
-            bottom: -450px;
+            bottom: -420px;
 
-            width: 94%;
-            max-width: 1400px;
+            width: 96%;
 
             background: white;
 
@@ -624,14 +517,14 @@ else:
             box-shadow:
                 0px -8px 35px rgba(0,0,0,0.18);
 
-            padding: 22px;
+            padding: 20px;
 
-            z-index: 99999;
+            border: 1px solid #eaeaea;
 
             transition:
                 bottom 0.9s cubic-bezier(0.22,1,0.36,1);
 
-            border: 1px solid #eaeaea;
+            font-family: Arial;
         }}
 
         #recommend-dock.show {{
@@ -639,41 +532,29 @@ else:
         }}
 
         .rec-header {{
-
             display: flex;
             justify-content: space-between;
             align-items: center;
-
             margin-bottom: 18px;
         }}
 
         .rec-title {{
-
             font-size: 22px;
             font-weight: 800;
             color: #222;
         }}
 
         .rec-close {{
-
             cursor: pointer;
             font-size: 24px;
             font-weight: bold;
             color: #777;
         }}
 
-        .rec-close:hover {{
-            color: black;
-        }}
-
         .rec-grid {{
-
             display: flex;
             gap: 18px;
-
             overflow-x: auto;
-
-            padding-bottom: 5px;
         }}
 
         .rec-card {{
@@ -687,18 +568,6 @@ else:
             padding: 12px;
 
             border: 1px solid #ececec;
-
-            transition:
-                transform 0.25s ease,
-                box-shadow 0.25s ease;
-        }}
-
-        .rec-card:hover {{
-
-            transform: translateY(-5px);
-
-            box-shadow:
-                0px 8px 20px rgba(0,0,0,0.10);
         }}
 
         .rec-card img {{
@@ -714,35 +583,29 @@ else:
         }}
 
         .rec-name {{
-
             font-weight: 700;
             font-size: 14px;
-
             color: #222;
-
-            min-height: 42px;
         }}
 
         .rec-rating {{
-
             color: #f39c12;
-
             font-size: 13px;
-
             margin-top: 5px;
         }}
 
         .rec-price {{
-
             font-size: 16px;
             font-weight: 800;
-
             color: #111;
-
             margin-top: 6px;
         }}
 
         </style>
+
+        </head>
+
+        <body>
 
         <div id="recommend-dock">
 
@@ -788,9 +651,12 @@ else:
         }}, 3000);
 
         </script>
+
+        </body>
+        </html>
         """
 
-        st.markdown(
+        components.html(
             dock_html,
-            unsafe_allow_html=True
+            height=320
         )

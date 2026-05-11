@@ -1,66 +1,61 @@
+import os
 
 import pandas as pd
 import streamlit as st
 
-import os
-
 # --- 1. CONFIG ---
 st.set_page_config(page_title="Best Shop | Static Portfolio", layout="wide")
 
-# --- 2. THE MOBILE-READY CSS ---
+# --- 2. THE IMPROVED CSS (MOBILE READY) ---
 st.markdown("""
     <style>
-    /* Basic Layout */
-    .block-container { padding-top: 2rem !important; }
+    .block-container { padding-top: 3.5rem !important; }
     
-    /* Logo Styling */
     .logo-container {
         display: flex;
         font-family: "Arial Black", Gadget, sans-serif;
-        font-size: clamp(24px, 5vw, 42px); /* Responsive font size */
+        font-size: clamp(28px, 5vw, 42px); /* Scales for mobile */
         font-weight: 900;
-        letter-spacing: -1px;
+        letter-spacing: -2px;
         line-height: 1;
-        margin-bottom: 10px;
     }
     
     .box-orange { background-color: #333333; color: #f1c40f; padding: 5px 15px; border: 2px solid #333333; display: flex; align-items: center; }
     .box-green { background-color: #f1c40f; color: #333333; padding: 5px 15px; border: 2px solid #f1c40f; display: flex; align-items: center; }
     
-    /* Navigation Bar - Scrollable on mobile */
     .category-bar {
         background-color: #333333; 
         padding: 12px 10px;
         display: flex;
         justify-content: center;
-        gap: clamp(10px, 3vw, 50px);
+        gap: clamp(15px, 3vw, 50px);
+        margin-top: 10px !important;
         margin-bottom: 25px !important;
         width: 100% !important;
-        overflow-x: auto; /* Allows sliding on small screens */
+        overflow-x: auto; /* Swipeable menu on phone */
         white-space: nowrap;
     }
     
     .cat-link { 
         font-weight: 800; 
         color: #F5F5DC !important; 
-        font-size: clamp(12px, 2vw, 18px) !important; 
+        font-size: 16px !important; 
         text-transform: uppercase; 
         cursor: pointer;
         letter-spacing: 1px;
     }
+    .cat-link:hover { color: #ffffff !important; }
 
-    /* Image Scaling */
     .stImage > img { 
         width: 100% !important;
-        height: 250px !important;   
+        height: 280px !important;   
         object-fit: cover !important; 
         border-radius: 8px;
         border: 1px solid #eee;
     }
     
-    /* Thumbnails */
     .small-img img {
-        height: 60px !important;   
+        height: 80px !important;   
         width: auto !important;
         border-radius: 4px;
         border: 1px solid #ddd;
@@ -74,21 +69,19 @@ st.markdown("""
         border: 2px solid #ddd; margin-right: 10px;
     }
 
-    /* Force columns to stack nicely on Mobile */
-    @media (max-width: 640px) {
+    /* MOBILE FIX: Stack columns on small screens */
+    @media (max-width: 680px) {
         [data-testid="column"] {
             width: 100% !important;
             flex: 1 1 100% !important;
             min-width: 100% !important;
-            margin-bottom: 20px;
         }
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. DATA & IMAGE PATHS ---
-# Updated to match your GitHub folder structure
-IMAGE_FOLDER = "Pictures_New" 
+# --- 3. DATA ---
+IMAGE_FOLDER = "Pictures_New" # Cleaned path for GitHub
 
 PRODUCT_TITLES = [
     "Adidas Runfalcon 5", "Reebok Energen Run 4", "XTEP Running Shoes", "Skechers Track Ripkent Sneaker", 
@@ -106,7 +99,6 @@ def get_star_string(rating):
 def get_images(folder):
     valid = ('.png', '.jpg', '.jpeg', '.webp', '.avif')
     if os.path.exists(folder):
-        # Using relative pathing for GitHub/Streamlit Cloud
         files = [os.path.join(folder, f) for f in os.listdir(folder) if f.lower().endswith(valid)]
         return sorted(files)
     return []
@@ -149,10 +141,9 @@ st.markdown('''
 
 # --- 7. MAIN CONTENT ---
 if not all_images:
-    st.info(f"Please add images to the 'Pictures_New' folder in GitHub.")
+    st.info(f"Please add images to the 'Pictures_New' folder.")
 else:
     if st.session_state.user_interest is None:
-        # Product Grid
         for r in range(4): 
             cols = st.columns(4)
             for c in range(4):
@@ -167,7 +158,6 @@ else:
                             st.session_state.user_interest = {"idx": idx, "path": all_images[idx], "name": PRODUCT_TITLES[idx], "price": PRODUCT_PRICES[idx], "rating": PRODUCT_RATINGS[idx]}
                             st.rerun()
     else:
-        # Product Detail Page
         item = st.session_state.user_interest
         if st.button("⬅ Back to Collection"):
             st.session_state.user_interest = None
@@ -178,7 +168,6 @@ else:
             st.image(item['path'], use_container_width=True)
             st.write("### Available Colors")
             sub1, sub2, spacer = st.columns([1, 1, 2])
-            # Thumbnail Logic (Uses indices 16 and 17 if they exist in folder)
             if len(all_images) > 16:
                 with sub1:
                     st.markdown('<div class="small-img">', unsafe_allow_html=True)

@@ -137,21 +137,23 @@ else:
     if st.session_state.user_interest is None:
         for r in range(4):
             # THE RECOMMENDATION PANEL
+            # THE RECOMMENDATION PANEL
             if r == 1 and st.session_state.viewed_history:
                 with st.container():
-                    st.subheader("Similar to what you just viewed")
-                    st.markdown('<div class="rec-panel">', unsafe_allow_html=True)
-                    
-                    rel_cols = st.columns(5) 
-                    for i in range(5):
-                        if i < len(back_images):
-                            with rel_cols[i]:
-                                st.image(back_images[i])
-                                st.markdown(f"**{BACK_TITLES[i]}**")
-                                st.markdown(f'<p style="color: #f1c40f !important; margin: 0;">{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})</p>', unsafe_allow_html=True)
-                                st.markdown(f'<p style="color: white !important; font-weight: bold; margin: 0;">{BACK_PRICES[i]}</p>', unsafe_allow_html=True)
+                st.markdown('<div class="rec-panel">', unsafe_allow_html=True)   # FIXED LINE
+                st.subheader("Similar to what you just viewed")
+        
+                rel_cols = st.columns(5) 
+                for i in range(5):
+                    if i < len(back_images):
+                        with rel_cols[i]:
+                            st.image(back_images[i])
+                            st.markdown(f"**{BACK_TITLES[i]}**")
+                            st.markdown(f'<p style="color: #f1c40f !important; margin: 0;">{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})</p>', unsafe_allow_html=True)
+                            st.markdown(f'<p style="color: white !important; font-weight: bold; margin: 0;">{BACK_PRICES[i]}</p>', unsafe_allow_html=True)
 
-                    st.markdown('</div>', unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
+
 
             # MAIN GRID
             cols = st.columns(4)

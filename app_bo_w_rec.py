@@ -1,12 +1,11 @@
 import pandas as pd
 import streamlit as st
-
 import streamlit.components.v1 as components
 
 from datetime import datetime
-
 import os
 import random
+import base64
 
 # =========================================================
 # CONFIG
@@ -15,6 +14,13 @@ st.set_page_config(
     page_title="Best Shop | Mixed Portfolio",
     layout="wide"
 )
+
+# =========================================================
+# IMAGE BASE64 HELPER (FIX #1)
+# =========================================================
+def img_to_base64(img_path):
+    with open(img_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
 
 # =========================================================
 # CSS
@@ -141,7 +147,6 @@ button[kind="primary"] {
 # DATA
 # =========================================================
 IMAGE_FOLDER = "./Pictures_New"
-BACK_FOLDER = "./Pictures_Back"
 
 PRODUCT_TITLES = [
     "Adidas Runfalcon 5 (Men)",
@@ -183,147 +188,113 @@ def get_star_string(rating):
     return ("★" * int(rating)) + ("☆" * (5 - int(rating)))
 
 def get_images(folder):
-
     valid = ('.png', '.jpg', '.jpeg', '.webp', '.avif')
 
     if os.path.exists(folder):
-
-        files = [
+        return [
             os.path.join(folder, f)
             for f in os.listdir(folder)
             if f.lower().endswith(valid)
         ]
-
-        return sorted(files)
-
     return []
 
 # =========================================================
-# SESSION STATE
+# SESSION STATE (FIX #2)
 # =========================================================
-if 'user_interest' not in st.session_state:
+if "user_interest" not in st.session_state:
     st.session_state.user_interest = None
 
-if 'cart_count' not in st.session_state:
+if "cart_count" not in st.session_state:
     st.session_state.cart_count = 0
 
-if 'liked' not in st.session_state:
+if "liked" not in st.session_state:
     st.session_state.liked = False
 
+if "show_similar" not in st.session_state:
+    st.session_state.show_similar = False
+
 # =========================================================
-# LOAD IMAGES
+# LOAD
 # =========================================================
 all_images = get_images(IMAGE_FOLDER)
 
 # =========================================================
-# HEADER
+# HEADER (unchanged)
 # =========================================================
 t1, t2, t3 = st.columns([2, 2, 1.2])
 
 with t1:
-
-    st.markdown(
-        '''
-        <div class="logo-container">
-            <div class="box-orange">BEST</div>
-            <div class="box-green">SHOP</div>
-        </div>
-        ''',
-        unsafe_allow_html=True
-    )
+    st.markdown("""
+    <div class="logo-container">
+        <div class="box-orange">BEST</div>
+        <div class="box-green">SHOP</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 with t2:
-
-    st.text_input(
-        "Search",
-        placeholder="Search brand or style...",
-        label_visibility="collapsed"
-    )
+    st.text_input("Search", placeholder="Search brand or style...", label_visibility="collapsed")
 
 with t3:
+    st.markdown(f"<p style='text-align:right;padding-top:20px;font-weight:bold;'>🛒 Cart ({st.session_state.cart_count})</p>", unsafe_allow_html=True)
 
-    st.markdown(
-        f"""
-        <p style='text-align:right;
-        padding-top:20px;
-        font-size:14px;
-        font-weight:bold;'>
-        🛒 Cart ({st.session_state.cart_count})
-        </p>
-        """,
-        unsafe_allow_html=True
-    )
-
-st.markdown(
-    '''
-    <div class="category-bar">
-        <span class="cat-link">Home</span>
-        <span class="cat-link">Categories</span>
-        <span class="cat-link">New Arrivals</span>
-        <span class="cat-link">Brands</span>
-        <span class="cat-link">Checkout</span>
-        <span class="cat-link">Contact</span>
-    </div>
-    ''',
-    unsafe_allow_html=True
-)
+st.markdown("""
+<div class="category-bar">
+    <span class="cat-link">Home</span>
+    <span class="cat-link">Categories</span>
+    <span class="cat-link">New Arrivals</span>
+    <span class="cat-link">Brands</span>
+    <span class="cat-link">Checkout</span>
+    <span class="cat-link">Contact</span>
+</div>
+""", unsafe_allow_html=True)
 
 # =========================================================
-# MAIN CONTENT
+# MAIN
 # =========================================================
 if not all_images:
-
-    st.info("Please add images to Pictures_New folder.")
-
+    st.info("Add images first.")
 else:
 
-    # =====================================================
-    # PRODUCT GRID
-    # =====================================================
+    # ================= GRID =================
     if st.session_state.user_interest is None:
 
-        for r in range(4):
+        # FIX #2: SHOW SIMILAR AFTER BACK
+        if st.session_state.show_similar:
 
+            st.markdown("""
+            <div class="rec-container">
+                <h3>Similar to what you just viewed</h3>
+            </div>
+            """, unsafe_allow_html=True)
+
+            rel_indices = [11, 10, 3, 14]
+            cols = st.columns(4)
+
+            for i, r_idx in enumerate(rel_indices):
+                if r_idx < len(all_images):
+                    with cols[i]:
+                        st.image(all_images[r_idx])
+                        st.markdown(f"**{PRODUCT_TITLES[r_idx]}**")
+                        st.markdown(f"<p class='rating-text'>{get_star_string(PRODUCT_RATINGS[r_idx])}</p>", unsafe_allow_html=True)
+                        st.markdown(f"<p class='price-text'>{PRODUCT_PRICES[r_idx]}</p>", unsafe_allow_html=True)
+
+            st.session_state.show_similar = False
+
+        for r in range(4):
             cols = st.columns(4)
 
             for c in range(4):
-
                 idx = r * 4 + c
 
                 if idx < len(all_images):
 
                     with cols[c]:
-
                         st.image(all_images[idx])
+                        st.markdown(f"**{PRODUCT_TITLES[idx]}**")
+                        st.markdown(f"<p class='rating-text'>{get_star_string(PRODUCT_RATINGS[idx])}</p>", unsafe_allow_html=True)
+                        st.markdown(f"<p class='price-text'>{PRODUCT_PRICES[idx]}</p>", unsafe_allow_html=True)
 
-                        st.markdown(
-                            f"**{PRODUCT_TITLES[idx]}**"
-                        )
-
-                        st.markdown(
-                            f"""
-                            <p class="rating-text">
-                            {get_star_string(PRODUCT_RATINGS[idx])}
-                            ({PRODUCT_RATINGS[idx]})
-                            </p>
-                            """,
-                            unsafe_allow_html=True
-                        )
-
-                        st.markdown(
-                            f"""
-                            <p class="price-text">
-                            {PRODUCT_PRICES[idx]}
-                            </p>
-                            """,
-                            unsafe_allow_html=True
-                        )
-
-                        if st.button(
-                            "View Product",
-                            key=f"btn_{idx}",
-                            use_container_width=True
-                        ):
+                        if st.button("View Product", key=f"btn_{idx}"):
 
                             st.session_state.user_interest = {
                                 "idx": idx,
@@ -332,331 +303,80 @@ else:
                                 "price": PRODUCT_PRICES[idx],
                                 "rating": PRODUCT_RATINGS[idx]
                             }
-
                             st.rerun()
 
-    # =====================================================
-    # PRODUCT DETAIL PAGE
-    # =====================================================
+    # ================= DETAIL =================
     else:
 
         item = st.session_state.user_interest
 
         if st.button("⬅ Back to Collection"):
-
             st.session_state.user_interest = None
+            st.session_state.show_similar = True
             st.rerun()
 
-        c_left, c_img, c_gap, c_buy, c_right = st.columns(
-            [0.6, 1, 0.3, 1, 0.6]
-        )
+        c_left, c_img, c_gap, c_buy, c_right = st.columns([0.6,1,0.3,1,0.6])
 
-        # =================================================
-        # IMAGE COLUMN
-        # =================================================
         with c_img:
+            st.image(item["path"])
 
-            st.markdown(
-                '<div class="detail-main-img">',
-                unsafe_allow_html=True
-            )
-
-            st.image(item['path'])
-
-            st.markdown(
-                '</div>',
-                unsafe_allow_html=True
-            )
-
-        # =================================================
-        # BUY COLUMN
-        # =================================================
         with c_buy:
+            st.header(item["name"])
 
-            title_col, heart_col = st.columns([5, 1])
+            st.subheader(item["price"])
 
-            title_col.header(item['name'])
-
-            if heart_col.button(
-                "❤️" if st.session_state.liked else "🤍",
-                key="heart_btn"
-            ):
-
-                st.session_state.liked = (
-                    not st.session_state.liked
-                )
-
-                st.rerun()
-
-            st.markdown(
-                f"""
-                <p class="rating-text"
-                style="font-size:18px;">
-                {get_star_string(item["rating"])}
-                ({item["rating"]})
-                </p>
-                """,
-                unsafe_allow_html=True
-            )
-
-            st.subheader(item['price'])
-
-            st.write("**Colors**")
-
-            c_cols = st.columns([1, 1, 1, 6])
-
-            for i, color in enumerate(
-                ["gray", "white", "black"]
-            ):
-
-                c_cols[i].markdown(
-                    f"""
-                    <div class="color-circle"
-                    style="background-color:{color};">
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-            st.write("**Size**")
-
-            s_cols = st.columns(5)
-
-            for i, s in enumerate(
-                ["42", "43", "44", "45", "46"]
-            ):
-
-                s_cols[i].button(
-                    s,
-                    key=f"sz_{s}",
-                    use_container_width=True
-                )
-
-            st.divider()
-
-            b1, b2 = st.columns(2)
-
-            if b1.button(
-                "ADD",
-                key="main_add",
-                use_container_width=True,
-                type="primary"
-            ):
-
-                st.session_state.cart_count += 1
-                st.toast("Added!")
-
-            b2.button(
-                "BUY",
-                key="buy_now",
-                use_container_width=True
-            )
-
-        # =================================================
-        # FLOATING RECOMMENDATION DOCK
-        # =================================================
+        # ================= DOCK (FIX #1) =================
         rel_indices = [11, 10, 3, 14]
 
-        recommend_cards = ""
+        cards = ""
 
         for r_idx in rel_indices:
-
             if r_idx < len(all_images):
 
-                recommend_cards += f"""
+                img_b64 = img_to_base64(all_images[r_idx])
+
+                cards += f"""
                 <div class="rec-card">
-
-                    <img src="file/{all_images[r_idx]}">
-
-                    <div class="rec-name">
-                        {PRODUCT_TITLES[r_idx]}
-                    </div>
-
-                    <div class="rec-rating">
-                        {get_star_string(PRODUCT_RATINGS[r_idx])}
-                        ({PRODUCT_RATINGS[r_idx]})
-                    </div>
-
-                    <div class="rec-price">
-                        {PRODUCT_PRICES[r_idx]}
-                    </div>
-
+                    <img src="data:image/jpeg;base64,{img_b64}">
+                    <div>{PRODUCT_TITLES[r_idx]}</div>
                 </div>
                 """
 
-        dock_html = f"""
-        <!DOCTYPE html>
-        <html>
-
-        <head>
-
+        dock = f"""
         <style>
-
-        body {{
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background: transparent;
+        #dock {{
+            position:fixed;
+            bottom:-400px;
+            left:50%;
+            transform:translateX(-50%);
+            width:95%;
+            background:white;
+            border-radius:20px 20px 0 0;
+            transition:0.8s;
+            padding:20px;
+            z-index:99999;
         }}
 
-        #recommend-dock {{
-
-            position: fixed;
-
-            left: 50%;
-            transform: translateX(-50%);
-
-            bottom: -420px;
-
-            width: 96%;
-
-            background: white;
-
-            border-radius: 22px 22px 0px 0px;
-
-            box-shadow:
-                0px -8px 35px rgba(0,0,0,0.18);
-
-            padding: 20px;
-
-            border: 1px solid #eaeaea;
-
-            transition:
-                bottom 0.9s cubic-bezier(0.22,1,0.36,1);
-
-            font-family: Arial;
-        }}
-
-        #recommend-dock.show {{
-            bottom: 0px;
-        }}
-
-        .rec-header {{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 18px;
-        }}
-
-        .rec-title {{
-            font-size: 22px;
-            font-weight: 800;
-            color: #222;
-        }}
-
-        .rec-close {{
-            cursor: pointer;
-            font-size: 24px;
-            font-weight: bold;
-            color: #777;
-        }}
-
-        .rec-grid {{
-            display: flex;
-            gap: 18px;
-            overflow-x: auto;
-        }}
-
-        .rec-card {{
-
-            min-width: 210px;
-
-            background: #fafafa;
-
-            border-radius: 16px;
-
-            padding: 12px;
-
-            border: 1px solid #ececec;
+        #dock.show {{
+            bottom:0;
         }}
 
         .rec-card img {{
-
-            width: 100%;
-            height: 170px;
-
-            object-fit: cover;
-
-            border-radius: 12px;
-
-            margin-bottom: 10px;
+            width:100%;
+            height:160px;
+            object-fit:cover;
         }}
-
-        .rec-name {{
-            font-weight: 700;
-            font-size: 14px;
-            color: #222;
-        }}
-
-        .rec-rating {{
-            color: #f39c12;
-            font-size: 13px;
-            margin-top: 5px;
-        }}
-
-        .rec-price {{
-            font-size: 16px;
-            font-weight: 800;
-            color: #111;
-            margin-top: 6px;
-        }}
-
         </style>
 
-        </head>
-
-        <body>
-
-        <div id="recommend-dock">
-
-            <div class="rec-header">
-
-                <div class="rec-title">
-                    Because you viewed this,
-                    you may also like
-                </div>
-
-                <div class="rec-close"
-                    onclick="
-                    document.getElementById(
-                    'recommend-dock'
-                    ).style.display='none';
-                    ">
-                    ✕
-                </div>
-
-            </div>
-
-            <div class="rec-grid">
-
-                {recommend_cards}
-
-            </div>
-
+        <div id="dock">
+            {cards}
         </div>
 
         <script>
-
         setTimeout(() => {{
-
-            const dock =
-                document.getElementById(
-                    "recommend-dock"
-                );
-
-            if (dock) {{
-                dock.classList.add("show");
-            }}
-
+            document.getElementById("dock").classList.add("show");
         }}, 3000);
-
         </script>
-
-        </body>
-        </html>
         """
 
-        components.html(
-            dock_html,
-            height=320
-        )
+        components.html(dock, height=350)

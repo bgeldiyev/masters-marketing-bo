@@ -54,7 +54,7 @@ st.markdown("""
         border: 1px solid #eee;
     }
 
-    /* DETAIL IMAGE: Pushed even smaller (300px) to ensure no scroll */
+    /* DETAIL IMAGE */
     .detail-main-img img {
         max-height: 300px !important; 
         width: auto !important;
@@ -260,7 +260,7 @@ else:
                 st.toast("Added!")
             b2.button("BUY", key="buy_now", use_container_width=True)
 
-        # --- DELAYED RELATED PRODUCTS PANEL ---
+        # --- DELAYED RECO DOCKER ---
         rec_placeholder = st.empty()
         time.sleep(3)
         

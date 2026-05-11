@@ -140,32 +140,36 @@ else:
             # --- RECOMMENDATION PANEL ---
             if r == 1 and st.session_state.viewed_history:
 
-                # OPEN PANEL
-                st.markdown('<div class="rec-panel">', unsafe_allow_html=True)
-
-                # TITLE
-                st.markdown("<h3>Similar to what you just viewed</h3>", unsafe_allow_html=True)
-
-                # ITEMS (INSIDE THE BOX)
-                cols = st.columns(5)
+                # Build HTML for items
+                items_html = ""
                 for i in range(5):
                     if i < len(back_images):
-                        with cols[i]:
-                            st.markdown('<div style="text-align:center;">', unsafe_allow_html=True)
-                            st.image(back_images[i])
-                            st.markdown(f"**{BACK_TITLES[i]}**")
-                            st.markdown(
-                                f'<p style="color:#f1c40f;margin:0;">{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})</p>',
-                                unsafe_allow_html=True
-                            )
-                            st.markdown(
-                                f'<p style="color:white;font-weight:bold;margin:0;">{BACK_PRICES[i]}</p>',
-                                unsafe_allow_html=True
-                            )
-                            st.markdown('</div>', unsafe_allow_html=True)
+                        img_b64 = img_to_base64(back_images[i])
+                        title = BACK_TITLES[i]
+                        rating = get_star_string(BACK_RATINGS[i])
+                        price = BACK_PRICES[i]
 
-                # CLOSE PANEL
-                st.markdown('</div>', unsafe_allow_html=True)
+                        items_html += f"""
+                        <td style="text-align:center; padding:10px;">
+                            <img src="data:image/png;base64,{img_b64}" 
+                                 style="width:150px; border-radius:10px; background:white; padding:8px;">
+                            <div style="color:white; font-weight:bold; margin-top:8px;">{title}</div>
+                            <div style="color:#f1c40f; margin:0;">{rating} ({BACK_RATINGS[i]})</div>
+                            <div style="color:white; font-weight:bold; margin-top:4px;">{price}</div>
+                        </td>
+                        """
+
+                # Render full panel as HTML
+                st.markdown(f"""
+                <div class="rec-panel">
+                    <h3>Similar to what you just viewed</h3>
+                    <table style="width:100%; text-align:center;">
+                        <tr>
+                            {items_html}
+                        </tr>
+                    </table>
+                </div>
+                """, unsafe_allow_html=True)
 
 
             # --- MAIN GRID ---

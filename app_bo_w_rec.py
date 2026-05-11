@@ -37,13 +37,19 @@ st.markdown("""
         object-fit: cover !important; border-radius: 8px; border: 1px solid #eee;
     }
 
-    /* THE WEB-STABLE CONTAINER (The Gray Box) */
+    /* --- THE BOX FIX --- */
+    /* Target the wrapper and force the gray color */
     div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) {
-        background-color: #f2f2f2 !important;
+        background-color: #f2f2f2 !important; /* This is the Gray */
         border-radius: 12px !important;
         padding: 25px !important;
         border: 1px solid #ddd !important;
         margin-top: 15px !important; margin-bottom: 25px !important;
+    }
+    
+    /* Force the internal Streamlit div to be transparent so the gray shows through */
+    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) > div {
+        background-color: transparent !important;
     }
 
     /* Detail View Image Styling */
@@ -67,7 +73,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. DATA RESTORATION ---
+# --- 3. DATA ---
 IMAGE_FOLDER = "./Pictures_New" 
 BACK_FOLDER = "./Pictures_Back" 
 
@@ -102,7 +108,7 @@ if 'cart_count' not in st.session_state: st.session_state.cart_count = 0
 if 'liked' not in st.session_state: st.session_state.liked = False
 if 'viewed_history' not in st.session_state: st.session_state.viewed_history = False 
 
-# --- 5. SIDEBAR (Full Restoration) ---
+# --- 5. SIDEBAR ---
 if st.session_state.user_interest is None:
     with st.sidebar:
         st.header("Refine Search")
@@ -125,13 +131,13 @@ st.markdown('<div class="category-bar"><span class="cat-link">Home</span><span c
 
 # --- 7. MAIN CONTENT ---
 if not all_images:
-    st.info("Ensure folder 'Pictures_New' contains images.")
+    st.info("Check folder 'Pictures_New'.")
 else:
     if st.session_state.user_interest is None:
         for r in range(4):
             # THE RECOMMENDATION PANEL
             if r == 1 and st.session_state.viewed_history:
-                with st.container(border=True):
+                with st.container(border=True): # Border=True is required for the CSS to target it
                     st.markdown('<span class="web-container-anchor"></span>', unsafe_allow_html=True)
                     st.subheader("Similar to what you just viewed")
                     rel_cols = st.columns(5) 
@@ -161,7 +167,7 @@ else:
                             else:
                                 st.toast("Demo restricted to Reebok.")
     else:
-        # DETAIL VIEW (Full Feature Restoration)
+        # DETAIL VIEW
         item = st.session_state.user_interest
         if st.button("⬅ Back to Collection"):
             st.session_state.user_interest = None
@@ -173,7 +179,6 @@ else:
             st.image(item['path'])
             st.write("### Editions")
             sub1, sub2, _ = st.columns([1, 1, 1.5]) 
-            # Showing additional images if available
             if len(all_images) > 16:
                 with sub1:
                     st.markdown('<div class="small-img">', unsafe_allow_html=True)
@@ -212,7 +217,6 @@ else:
                 st.toast("Added!")
             b2.button("BUY", key="buy_now", use_container_width=True)
 
-        # BOTTOM RELATED (Full Restoration)
         st.write("---")
         st.subheader("Because you viewed this, you may also like")
         rel_indices = [11, 10, 3, 14] 

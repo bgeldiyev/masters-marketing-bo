@@ -99,10 +99,10 @@ IMAGE_FOLDER = "Pictures_New"
 BACK_FOLDER = "Pictures_Back" 
 
 PRODUCT_TITLES = [
-    "Adidas Runfalcon 5 (Men)", "Reebok Energen Run 4 (Women)", "XTEP Running Shoes (Men)", "Skechers Track Ripkent Sneaker (Men)", 
-    "WHITIN Running Shoes (Unisex)", "Nike Stellar Ride (Kids)", "Asics Gel-Excite 11 Sneaker (Men)", "New Balance Fresh Foam", 
-    "Brooks Adrenaline Gts 25 (Men)", "Nike Vomero 18 GORE-TEX (Men)", "New Balance 411 Sneaker (Men)", "Under Armour Charged Edge (Men)", 
-    "Nike Wildhorse 10 (Men)", "On Cloud 6 Sneaker (Men)", "HOKA Clifton 10 (Women)", "New Balance 1080"
+    "Adidas Runfalcon 5", "Reebok Energen Run 4", "XTEP Running Shoes", "Skechers Track Ripkent Sneaker", 
+    "WHITIN Running Shoes", "Nike Stellar Ride", "Asics Gel-Excite 11 Sneaker", "New Balance Fresh Foam", 
+    "Brooks Adrenaline Gts 25", "Nike Vomero 18 GORE-TEX", "New Balance 411 Sneaker", "Under Armour Charged Edge", 
+    "Nike Wildhorse 10", "On Cloud 6 Sneaker", "HOKA Clifton 10", "New Balance 1080"
 ]
 
 BACK_TITLES = ["Top Rated Choice (Brooks Adrenaline Gts 25)", "Style Inspired by You (New Balance 411 Sneaker)", "Performance Pick (Reebok Work N Cushion 4.0)", "Season's Best (Puma Flyer Lite 3)", "New Arrival (Under Armour Charged Edge)"]

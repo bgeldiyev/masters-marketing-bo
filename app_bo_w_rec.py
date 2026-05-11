@@ -139,8 +139,8 @@ else:
             # THE RECOMMENDATION PANEL
             if r == 1 and st.session_state.viewed_history:
                 with st.container():
-                    st.markdown('<div class="rec-panel">', unsafe_allow_html=True)
                     st.subheader("Similar to what you just viewed")
+                    st.markdown('<div class="rec-panel">', unsafe_allow_html=True)
                     
                     rel_cols = st.columns(5) 
                     for i in range(5):

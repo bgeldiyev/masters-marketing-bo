@@ -10,7 +10,7 @@ from datetime import datetime
 # --- 1. CONFIG ---
 st.set_page_config(page_title="Best Shop | Mixed Portfolio", layout="wide")
 
-# --- 2. THE IMPROVED CSS (MATCHES WOREC + MOBILE READY) ---
+# --- 2. THE "EQUALIZER" CSS (UPDATED FOR FULL ENCAPSULATION) ---
 st.markdown("""
     <style>
     .block-container { padding-top: 3.5rem !important; }
@@ -18,7 +18,7 @@ st.markdown("""
     .logo-container {
         display: flex;
         font-family: "Arial Black", Gadget, sans-serif;
-        font-size: clamp(28px, 5vw, 42px);
+        font-size: 42px;
         font-weight: 900;
         letter-spacing: -2px;
         line-height: 1;
@@ -29,34 +29,57 @@ st.markdown("""
     
     .category-bar {
         background-color: #333333; 
-        padding: 12px 10px;
+        padding: 10px 0px;
         display: flex;
         justify-content: center;
-        gap: clamp(15px, 3vw, 50px);
+        gap: 50px;
         margin-top: 10px !important;
-        margin-bottom: 25px !important;
+        margin-bottom: 20px !important;
         width: 100% !important;
-        overflow-x: auto;
-        white-space: nowrap;
+        border-radius: 0px;
     }
     
     .cat-link { 
-        font-weight: 800; 
-        color: #F5F5DC !important; 
-        font-size: 16px !important; 
+        font-weight: bold; 
+        color: #F5F5DC; 
+        font-size: 16px; 
         text-transform: uppercase; 
-        cursor: pointer;
-        letter-spacing: 1px;
+        cursor: pointer; 
     }
-    .cat-link:hover { color: #ffffff !important; }
+    .cat-link:hover { color: #ffffff; }
 
-    /* GRID IMAGES */
+    /* MAIN GRID IMAGES */
     .stImage > img { 
         width: 100% !important;
         height: 280px !important;   
         object-fit: cover !important; 
         border-radius: 8px;
         border: 1px solid #eee;
+    }
+
+    /* THE GRAY PANEL BOX (ENCAPSULATOR) */
+    .rec-panel {
+        background-color: #f2f2f2 !important; 
+        border-radius: 12px;
+        padding: 25px !important;
+        margin-top: 10px !important; 
+        margin-bottom: 30px !important;
+        border: 1px solid #ddd;
+    }
+
+    .rec-panel h3 {
+        margin-top: 0px !important;
+        font-size: 24px !important;
+        margin-bottom: 15px !important;
+        color: #333;
+    }
+
+    /* DETAIL VIEW STYLING */
+    .detail-main-img img {
+        max-height: 300px !important; 
+        width: auto !important;
+        object-fit: contain !important;
+        margin-bottom: 10px;
     }
     
     .small-img img {
@@ -74,28 +97,14 @@ st.markdown("""
         border: 2px solid #ddd; margin-right: 8px;
     }
 
-    /* RECOMMENDATION CONTAINER */
-    [data-testid="stVerticalBlock"] > div:has(.rec-container) {
-        background-color: #eeeeee !important; /* Darker gray like before */
-        border-radius: 12px;
-        padding: 25px !important;
-        margin-top: 20px !important;
-        margin-bottom: 20px !important;
-        border: 2px solid #dddddd; /* Adds a visible outer frame */
-    }
-
-    /* MOBILE FIX: Stack columns on small screens */
+    /* MOBILE ADJUSTMENT */
     @media (max-width: 680px) {
-        [data-testid="column"] {
-            width: 100% !important;
-            flex: 1 1 100% !important;
-            min-width: 100% !important;
-        }
+        [data-testid="column"] { width: 100% !important; flex: 1 1 100% !important; min-width: 100% !important; }
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. DATA (Restored & Path Fixed) ---
+# --- 3. DATA ---
 IMAGE_FOLDER = "Pictures_New" 
 BACK_FOLDER = "Pictures_Back" 
 
@@ -106,7 +115,7 @@ PRODUCT_TITLES = [
     "Nike Wildhorse 10", "On Cloud 6 Sneaker", "HOKA Clifton 10", "New Balance 1080"
 ]
 
-BACK_TITLES = ["Top Rated Choice (Brooks Adrenaline Gts 25)", "Style Inspired by You (New Balance 411 Sneaker)", "Performance Pick (Reebok Work N Cushion 4.0)", "Season's Best (Puma Flyer Lite 3)", "New Arrival (Under Armour Charged Edge)"]
+BACK_TITLES = ["Top Rated Choice", "Style Inspired by You", "Performance Pick", "Season's Best", "New Arrival"]
 BACK_PRICES = ["$160.00", "$49.99", "$60.00", "$43.99", "$65.00"]
 BACK_RATINGS = [4.7, 4.1, 4.3, 4.4, 4.4]
 
@@ -151,37 +160,34 @@ with t1: st.markdown('<div class="logo-container"><div class="box-orange">BEST</
 with t2: st.text_input("Search", placeholder="Search brand or style...", label_visibility="collapsed")
 with t3: st.markdown(f"<p style='text-align:right; padding-top:20px; font-size:14px; font-weight:bold;'>🛒 Cart ({st.session_state.cart_count})</p>", unsafe_allow_html=True)
 
-st.markdown('''
-    <div class="category-bar">
-        <span class="cat-link">Home</span>
-        <span class="cat-link">Categories</span>
-        <span class="cat-link">New Arrivals</span>
-        <span class="cat-link">Brands</span>
-        <span class="cat-link">Checkout</span>
-        <span class="cat-link">Contact</span>
-    </div>
-''', unsafe_allow_html=True)
+st.markdown('''<div class="category-bar">
+    <span class="cat-link">Home</span><span class="cat-link">Categories</span>
+    <span class="cat-link">New Arrivals</span><span class="cat-link">Brands</span>
+    <span class="cat-link">Checkout</span><span class="cat-link">Contact</span>
+</div>''', unsafe_allow_html=True)
 
 # --- 7. MAIN CONTENT ---
 if not all_images:
-    st.info(f"Please add images to the 'Pictures_New' folder.")
+    st.info("Ensure 'Pictures_New' folder contains images.")
 else:
     if st.session_state.user_interest is None:
         for r in range(4): 
-            # Recommendation Row Logic
+            # THE RECOMMENDATION PANEL
             if r == 1 and st.session_state.viewed_history:
-                st.markdown('<div class="rec-container">', unsafe_allow_html=True)
-                st.subheader("Similar to what you just viewed")
-                rel_cols = st.columns(5) 
-                for i in range(5):
-                    with rel_cols[i]:
-                        if i < len(back_images):
-                            st.image(back_images[i])
-                            st.markdown(f"**{BACK_TITLES[i]}**")
-                            st.markdown(f'<p class="rating-text">{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})</p>', unsafe_allow_html=True)
-                            st.markdown(f'<p class="price-text">{BACK_PRICES[i]}</p>', unsafe_allow_html=True)
-                st.markdown('</div>', unsafe_allow_html=True)
+                with st.container():
+                    st.markdown('<div class="rec-panel">', unsafe_allow_html=True)
+                    st.subheader("Similar to what you just viewed")
+                    rel_cols = st.columns(5) 
+                    for i in range(5):
+                        with rel_cols[i]:
+                            if i < len(back_images):
+                                st.image(back_images[i])
+                                st.markdown(f"**{BACK_TITLES[i]}**")
+                                st.markdown(f'<p class="rating-text">{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})</p>', unsafe_allow_html=True)
+                                st.markdown(f'<p class="price-text">{BACK_PRICES[i]}</p>', unsafe_allow_html=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
 
+            # STANDARD GRID
             cols = st.columns(4)
             for c in range(4):
                 idx = r * 4 + c
@@ -193,7 +199,6 @@ else:
                         st.markdown(f'<p class="price-text">{PRODUCT_PRICES[idx]}</p>', unsafe_allow_html=True)
                         if st.button("View Product", key=f"btn_{idx}", use_container_width=True):
                             if idx == 1: st.session_state.viewed_history = True
-                            # Your Demo Logic
                             if "Reebok" in PRODUCT_TITLES[idx] or idx == 1:
                                 st.session_state.user_interest = {"idx": idx, "path": all_images[idx], "name": PRODUCT_TITLES[idx], "price": PRODUCT_PRICES[idx], "rating": PRODUCT_RATINGS[idx]}
                                 st.rerun()
@@ -207,21 +212,14 @@ else:
             st.rerun()
             
         c_left_margin, c_img, c_mid_gap, c_buy, c_right_margin = st.columns([0.2, 1, 0.1, 1, 0.2])
-        
         with c_img:
             st.image(item['path'], use_container_width=True)
             st.write("### Editions")
             sub1, sub2, _ = st.columns([1, 1, 1.5]) 
             if len(all_images) > 16:
-                with sub1:
-                    st.markdown('<div class="small-img">', unsafe_allow_html=True)
-                    st.image(all_images[16])
-                    st.markdown('</div>', unsafe_allow_html=True)
+                with sub1: st.image(all_images[16])
             if len(all_images) > 17:
-                with sub2:
-                    st.markdown('<div class="small-img">', unsafe_allow_html=True)
-                    st.image(all_images[17])
-                    st.markdown('</div>', unsafe_allow_html=True)
+                with sub2: st.image(all_images[17])
                 
         with c_buy:
             title_col, heart_col = st.columns([5, 1])
@@ -229,19 +227,16 @@ else:
             if heart_col.button("❤️" if st.session_state.liked else "🤍", key="heart_btn"):
                 st.session_state.liked = not st.session_state.liked
                 st.rerun()
-                
             st.markdown(f'<p class="rating-text" style="font-size:18px;">{get_star_string(item["rating"])} ({item["rating"]})</p>', unsafe_allow_html=True)
             st.subheader(item['price'])
             st.write("**Colors**")
             c_cols = st.columns([1, 1, 1, 6])
             for i, color in enumerate(["gray", "white", "black"]):
                 c_cols[i].markdown(f'<div class="color-circle" style="background-color: {color};"></div>', unsafe_allow_html=True)
-            
             st.write("**Size**")
             s_cols = st.columns(5)
             for i, s in enumerate(["42", "43", "44", "45", "46"]):
                 s_cols[i].button(s, key=f"sz_{s}", use_container_width=True)
-            
             st.divider()
             b1, b2 = st.columns(2)
             if b1.button("ADD", key="main_add", use_container_width=True, type="primary"):
@@ -249,7 +244,7 @@ else:
                 st.toast(f"Added {item['name']}!")
             b2.button("BUY", key="buy_now", use_container_width=True)
 
-        # BOTTOM RECOMMENDATIONS
+        # BOTTOM RELATED
         st.write("---")
         st.subheader("Because you viewed this, you may also like")
         rel_indices = [11, 10, 3, 14] 

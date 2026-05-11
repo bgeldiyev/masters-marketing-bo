@@ -19,7 +19,7 @@ def img_to_base64(path):
         return ""
 
 # =========================================================
-# 2. CSS (ALL ESSENTIALS + FIXED DOCK PADDING)
+# 2. CSS (UPDATED FOR GRAY BOX AND DETAIL VIEW)
 # =========================================================
 st.markdown("""
 <style>
@@ -30,16 +30,22 @@ st.markdown("""
 .category-bar { background-color: #333333; padding: 10px 0px; display: flex; justify-content: center; gap: 50px; margin-top: 10px; margin-bottom: 20px; width: 100%; }
 .cat-link { font-weight: bold; color: #F5F5DC; font-size: 16px; text-transform: uppercase; cursor: pointer; }
 
-/* THE GRAY BOX (HOME PAGE) */
+/* THE GRAY BOX (ENCOMPASSES ENTIRE SECTION) */
 .rec-container { 
     background-color: #f2f2f2 !important; 
     border-radius: 12px; 
-    padding: 20px !important; 
-    margin-bottom: 20px !important;
+    padding: 25px !important; 
+    margin-bottom: 30px !important;
+}
+.rec-container h3 {
+    margin-top: 0px !important;
+    font-size: 24px !important;
+    margin-bottom: 15px !important;
 }
 
 .stImage > img { width: 100% !important; height: 300px !important; object-fit: cover !important; border-radius: 8px; border: 1px solid #eee; }
 .detail-main-img img { max-height: 300px !important; width: auto !important; object-fit: contain !important; }
+.small-img img { height: 60px !important; width: auto !important; border-radius: 4px; border: 1px solid #ddd; }
 .rating-text { color: #f39c12; font-weight: bold; font-size: 14px; margin: 0; }
 .price-text { font-size: 18px; font-weight: bold; color: #333; margin: 0; }
 .color-circle { height: 22px; width: 22px; border-radius: 50%; display: inline-block; border: 2px solid #ddd; margin-right: 8px; }
@@ -51,7 +57,9 @@ st.markdown("""
 # =========================================================
 IMAGE_FOLDER, BACK_FOLDER = "./Pictures_New", "./Pictures_Back"
 PRODUCT_TITLES = ["Adidas Runfalcon 5", "Reebok Energen Run 4", "XTEP Running Shoes", "Skechers Track Ripkent", "WHITIN Running", "Nike Stellar Ride", "Asics Gel-Excite 11", "New Balance Fresh Foam", "Brooks Adrenaline Gts 25", "Nike Vomero 18", "New Balance 411", "Under Armour Charged Edge", "Nike Wildhorse 10", "On Cloud 6", "HOKA Clifton 10", "New Balance 1080"]
-BACK_TITLES = ["Top Rated Choice", "Style Inspired by You", "Performance Pick", "Season's Best", "New Arrival"]
+BACK_TITLES = ["Top Rated", "Inspired", "Performance", "Season Best", "New Arrival"]
+BACK_PRICES = ["$160.00", "$49.99", "$60.00", "$43.99", "$65.00"]
+BACK_RATINGS = [4.7, 4.1, 4.3, 4.4, 4.4]
 PRODUCT_PRICES = ["$60.00", "$69.99", "$139.99", "$69.95", "$49.99", "$59.99", "$90.00", "$139.99", "$160.00", "$169.99", "$49.99", "$65.00", "$149.99", "$138.85", "$129.99", "$159.99"]
 PRODUCT_RATINGS = [4.3, 4.7, 4.3, 4.5, 4.3, 4.4, 4.5, 4.6, 4.7, 4.3, 4.1, 4.4, 4.4, 4.2, 4.6, 4.5]
 
@@ -63,44 +71,50 @@ def get_images(folder):
 all_images, back_images = get_images(IMAGE_FOLDER), get_images(BACK_FOLDER)
 
 # =========================================================
-# 4. STATE & SIDEBAR
+# 4. STATE & CONDITIONAL SIDEBAR (REMOVED ON PRODUCT PAGE)
 # =========================================================
 if 'user_interest' not in st.session_state: st.session_state.user_interest = None
 if 'cart_count' not in st.session_state: st.session_state.cart_count = 0
 if 'viewed_history' not in st.session_state: st.session_state.viewed_history = False
 if 'liked' not in st.session_state: st.session_state.liked = False
 
-with st.sidebar:
-    st.header("Refine Search")
-    st.divider()
-    st.checkbox("Running", value=True); st.checkbox("Training"); st.checkbox("Lifestyle")
-    st.subheader("Price Range")
-    st.slider("Filter by Price", 0, 300, (40, 200))
-    if st.button("Reset All Filters", use_container_width=True): st.rerun()
+# Sidebar only shows on Home Grid
+if st.session_state.user_interest is None:
+    with st.sidebar:
+        st.header("Refine Search")
+        st.divider()
+        st.checkbox("Running", value=True); st.checkbox("Training"); st.checkbox("Lifestyle")
+        st.subheader("Price Range")
+        st.slider("Filter by Price", 0, 300, (40, 200))
+        if st.button("Reset All Filters", use_container_width=True): st.rerun()
 
 # =========================================================
 # 5. HEADER
 # =========================================================
 t1, t2, t3 = st.columns([2, 2, 1.2])
 with t1: st.markdown('<div class="logo-container"><div class="box-orange">BEST</div><div class="box-green">SHOP</div></div>', unsafe_allow_html=True)
-with t2: st.text_input("Search", placeholder="Search brand...", label_visibility="collapsed")
+with t2: st.text_input("Search", placeholder="Search...", label_visibility="collapsed")
 with t3: st.markdown(f"<p style='text-align:right; padding-top:20px; font-weight:bold;'>🛒 Cart ({st.session_state.cart_count})</p>", unsafe_allow_html=True)
 st.markdown('<div class="category-bar"><span class="cat-link">Home</span><span class="cat-link">Categories</span><span class="cat-link">Brands</span></div>', unsafe_allow_html=True)
 
 # =========================================================
-# 6. MAIN ROUTING
+# 6. MAIN CONTENT
 # =========================================================
 if st.session_state.user_interest is None:
+    # GRID VIEW
     for r in range(4):
         if r == 1 and st.session_state.viewed_history:
+            # INTEGRATED GRAY BOX LAYOUT
             st.markdown('<div class="rec-container">', unsafe_allow_html=True)
             st.subheader("Similar to what you just viewed")
             rel_cols = st.columns(5)
-            for i in range(min(5, len(back_images))):
+            for i in range(5):
                 with rel_cols[i]:
-                    st.image(back_images[i])
-                    st.markdown(f"**{BACK_TITLES[i]}**")
-                    st.markdown(f'<p class="rating-text">{get_star_string(4.5)}</p>', unsafe_allow_html=True)
+                    if i < len(back_images):
+                        st.image(back_images[i])
+                        st.markdown(f"**{BACK_TITLES[i]}**")
+                        st.markdown(f'<p class="rating-text">{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})</p>', unsafe_allow_html=True)
+                        st.markdown(f'<p class="price-text">{BACK_PRICES[i]}</p>', unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
         cols = st.columns(4)
@@ -117,7 +131,7 @@ if st.session_state.user_interest is None:
                         st.session_state.viewed_history = True
                         st.rerun()
 else:
-    # PRODUCT DETAIL VIEW
+    # PRODUCT DETAIL VIEW (Sidebar is now Hidden)
     item = st.session_state.user_interest
     if st.button("⬅ Back to Collection"):
         st.session_state.user_interest = None
@@ -128,12 +142,12 @@ else:
         st.markdown('<div class="detail-main-img">', unsafe_allow_html=True)
         st.image(item['path'])
         st.markdown('</div>', unsafe_allow_html=True)
-        
         st.write("### Editions")
         sub1, sub2, _ = st.columns([1, 1, 1.5])
+        if len(all_images) > 16:
+            with sub1: st.image(all_images[16])
         if len(all_images) > 17:
-            with sub1: st.markdown('<div class="small-img">', unsafe_allow_html=True); st.image(all_images[16]); st.markdown('</div>', unsafe_allow_html=True)
-            with sub2: st.markdown('<div class="small-img">', unsafe_allow_html=True); st.image(all_images[17]); st.markdown('</div>', unsafe_allow_html=True)
+            with sub2: st.image(all_images[17])
                 
     with c_buy:
         title_col, heart_col = st.columns([5, 1])
@@ -149,16 +163,16 @@ else:
         
         st.write("**Size**")
         s_cols = st.columns(5)
-        for i, s in enumerate(["42", "43", "44", "45", "46"]): s_cols[i].button(s, key=f"sz_{s}")
+        for i, s in enumerate(["42", "43", "44", "45", "46"]): s_cols[i].button(s, key=f"sz_{s}", use_container_width=True)
         
         st.divider()
-        if st.button("ADD TO CART", use_container_width=True, type="primary"):
+        b1, b2 = st.columns(2)
+        if b1.button("ADD", key="main_add", use_container_width=True, type="primary"):
             st.session_state.cart_count += 1
-            st.toast("Added to Cart!")
+            st.toast("Added!")
+        b2.button("BUY", key="buy_now", use_container_width=True)
 
-    # =========================================================
-    # 7. THE DOCK (CENTERED CONTENT + 3s DELAY)
-    # =========================================================
+    # 3-SECOND DOCK (CENTERED CONTENT)
     rel_indices = [11, 10, 3, 14]
     cards_html = ""
     for i in rel_indices:

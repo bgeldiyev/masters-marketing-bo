@@ -7,55 +7,60 @@ import os
 # --- 1. CONFIG ---
 st.set_page_config(page_title="Best Shop | Static Portfolio", layout="wide")
 
-# --- 2. THE "EQUALIZER" CSS ---
+# --- 2. THE MOBILE-READY CSS ---
 st.markdown("""
     <style>
-    .block-container { padding-top: 3.5rem !important; }
+    /* Basic Layout */
+    .block-container { padding-top: 2rem !important; }
     
+    /* Logo Styling */
     .logo-container {
         display: flex;
         font-family: "Arial Black", Gadget, sans-serif;
-        font-size: 42px;
+        font-size: clamp(24px, 5vw, 42px); /* Responsive font size */
         font-weight: 900;
-        letter-spacing: -2px;
+        letter-spacing: -1px;
         line-height: 1;
+        margin-bottom: 10px;
     }
     
     .box-orange { background-color: #333333; color: #f1c40f; padding: 5px 15px; border: 2px solid #333333; display: flex; align-items: center; }
     .box-green { background-color: #f1c40f; color: #333333; padding: 5px 15px; border: 2px solid #f1c40f; display: flex; align-items: center; }
     
+    /* Navigation Bar - Scrollable on mobile */
     .category-bar {
         background-color: #333333; 
-        padding: 12px 0px;
+        padding: 12px 10px;
         display: flex;
         justify-content: center;
-        gap: 50px;
-        margin-top: 10px !important;
+        gap: clamp(10px, 3vw, 50px);
         margin-bottom: 25px !important;
         width: 100% !important;
-        border-radius: 0px;
+        overflow-x: auto; /* Allows sliding on small screens */
+        white-space: nowrap;
     }
     
     .cat-link { 
         font-weight: 800; 
         color: #F5F5DC !important; 
-        font-size: 18px !important; 
+        font-size: clamp(12px, 2vw, 18px) !important; 
         text-transform: uppercase; 
         cursor: pointer;
         letter-spacing: 1px;
     }
-    .cat-link:hover { color: #ffffff !important; }
 
+    /* Image Scaling */
     .stImage > img { 
         width: 100% !important;
-        height: 300px !important;   
+        height: 250px !important;   
         object-fit: cover !important; 
         border-radius: 8px;
         border: 1px solid #eee;
     }
     
+    /* Thumbnails */
     .small-img img {
-        height: 80px !important;   
+        height: 60px !important;   
         width: auto !important;
         border-radius: 4px;
         border: 1px solid #ddd;
@@ -68,17 +73,28 @@ st.markdown("""
         height: 25px; width: 25px; border-radius: 50%; display: inline-block; 
         border: 2px solid #ddd; margin-right: 10px;
     }
+
+    /* Force columns to stack nicely on Mobile */
+    @media (max-width: 640px) {
+        [data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+            margin-bottom: 20px;
+        }
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. DATA ---
-IMAGE_FOLDER = "./Pictures_New" 
+# --- 3. DATA & IMAGE PATHS ---
+# Updated to match your GitHub folder structure
+IMAGE_FOLDER = "Pictures_New" 
 
 PRODUCT_TITLES = [
-    "Adidas Runfalcon 5 (Men)", "Reebok Energen Run 4 (Women)", "XTEP Running Shoes (Men)", "Skechers Track Ripkent Sneaker (Men)", 
-    "WHITIN Running Shoes (Unisex)", "Nike Stellar Ride (Kids)", "Asics Gel-Excite 11 Sneaker (Men)", "New Balance Fresh Foam", 
-    "Brooks Adrenaline Gts 25 (Men)", "Nike Vomero 18 GORE-TEX (Men)", "New Balance 411 Sneaker (Men)", "Under Armour Charged Edge (Men)", 
-    "Nike Wildhorse 10 (Men)", "On Cloud 6 Sneaker (Men)", "HOKA Clifton 10 (Women)", "New Balance 1080"
+    "Adidas Runfalcon 5", "Reebok Energen Run 4", "XTEP Running Shoes", "Skechers Track Ripkent Sneaker", 
+    "WHITIN Running Shoes", "Nike Stellar Ride", "Asics Gel-Excite 11 Sneaker", "New Balance Fresh Foam", 
+    "Brooks Adrenaline Gts 25", "Nike Vomero 18 GORE-TEX", "New Balance 411 Sneaker", "Under Armour Charged Edge", 
+    "Nike Wildhorse 10", "On Cloud 6 Sneaker", "HOKA Clifton 10", "New Balance 1080"
 ]
 
 PRODUCT_PRICES = ["$60.00", "$69.99", "$139.99", "$69.95", "$49.99", "$59.99", "$90.00", "$139.99", "$160.00", "$169.99", "$49.99", "$65.00", "$149.99", "$138.85", "$129.99", "$159.99"]
@@ -90,6 +106,7 @@ def get_star_string(rating):
 def get_images(folder):
     valid = ('.png', '.jpg', '.jpeg', '.webp', '.avif')
     if os.path.exists(folder):
+        # Using relative pathing for GitHub/Streamlit Cloud
         files = [os.path.join(folder, f) for f in os.listdir(folder) if f.lower().endswith(valid)]
         return sorted(files)
     return []
@@ -132,9 +149,10 @@ st.markdown('''
 
 # --- 7. MAIN CONTENT ---
 if not all_images:
-    st.info(f"Please add images to the folder.")
+    st.info(f"Please add images to the 'Pictures_New' folder in GitHub.")
 else:
     if st.session_state.user_interest is None:
+        # Product Grid
         for r in range(4): 
             cols = st.columns(4)
             for c in range(4):
@@ -149,6 +167,7 @@ else:
                             st.session_state.user_interest = {"idx": idx, "path": all_images[idx], "name": PRODUCT_TITLES[idx], "price": PRODUCT_PRICES[idx], "rating": PRODUCT_RATINGS[idx]}
                             st.rerun()
     else:
+        # Product Detail Page
         item = st.session_state.user_interest
         if st.button("⬅ Back to Collection"):
             st.session_state.user_interest = None
@@ -157,9 +176,9 @@ else:
         col_l, col_r = st.columns([1.2, 1])
         with col_l:
             st.image(item['path'], use_container_width=True)
-            # RESTORED: Small image thumbnails
             st.write("### Available Colors")
             sub1, sub2, spacer = st.columns([1, 1, 2])
+            # Thumbnail Logic (Uses indices 16 and 17 if they exist in folder)
             if len(all_images) > 16:
                 with sub1:
                     st.markdown('<div class="small-img">', unsafe_allow_html=True)
@@ -176,7 +195,6 @@ else:
             st.markdown(f'<p class="rating-text" style="font-size:24px;">{get_star_string(item["rating"])} ({item["rating"]})</p>', unsafe_allow_html=True)
             st.subheader(item['price'])
             
-            # RESTORED: Color selection circles
             st.write("**Available Colors**")
             c_cols = st.columns([1, 1, 1, 7])
             for i, color in enumerate(["gray", "white", "black"]):
@@ -190,6 +208,6 @@ else:
             st.divider()
             if st.button("ADD TO CART", key="main_add", use_container_width=True, type="primary"):
                 st.session_state.cart_count += 1
-                st.toast("Added!")
+                st.toast(f"Added {item['name']} to cart!")
                 st.rerun()
             st.button("BUY NOW", key="buy_now", use_container_width=True)

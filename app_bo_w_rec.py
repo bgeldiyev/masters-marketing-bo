@@ -37,30 +37,20 @@ st.markdown("""
         object-fit: cover !important; border-radius: 8px; border: 1px solid #eee;
     }
 
-    /* --- THE FINAL GRAY BOX FIX --- */
-    /* 1. Target the outer wrapper */
-    [data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) {
-        background-color: #555555 !important;
-        border: 1px solid #444444 !important;
-        border-radius: 12px !important;
+    /* --- CUSTOM GRAY PANEL --- */
+    .custom-gray-panel {
+        background-color: #555555 !important; /* Medium-Dark Gray */
+        padding: 30px;
+        border-radius: 15px;
+        margin: 20px 0px;
     }
-
-    /* 2. Target the INNER containers that are currently forcing white */
-    [data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) [data-testid="stVerticalBlock"],
-    [data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) [data-testid="stVerticalBlockBorderWrapper"] > div:nth-child(1) {
-        background-color: transparent !important;
-    }
-
-    /* 3. Force text to white so it is readable on the gray */
-    [data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) * {
-        color: #FFFFFF !important;
-    }
-
-    /* 4. Keep image backgrounds white so the products look clean */
-    [data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) img {
-        background-color: #FFFFFF !important;
-        padding: 8px;
-        border-radius: 8px;
+    
+    /* Force text inside this specific class to be white */
+    .custom-gray-panel h3, 
+    .custom-gray-panel p, 
+    .custom-gray-panel b, 
+    .custom-gray-panel span {
+        color: white !important;
     }
 
     /* Detail View Image Styling */

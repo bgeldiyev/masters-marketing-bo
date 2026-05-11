@@ -1,8 +1,6 @@
 import pandas as pd
 import streamlit as st
-
 import streamlit.components.v1 as components
-
 import os
 import base64
 
@@ -19,7 +17,7 @@ def img_to_base64(path):
         return ""
 
 # =========================================================
-# 2. CSS (UPDATED FOR GRAY BOX AND DETAIL VIEW)
+# 2. CSS (RESTORED FULL CATEGORY BAR & GRAY BOX STYLES)
 # =========================================================
 st.markdown("""
 <style>
@@ -27,25 +25,36 @@ st.markdown("""
 .logo-container { display: flex; font-family: "Arial Black", sans-serif; font-size: 42px; font-weight: 900; letter-spacing: -2px; line-height: 1; }
 .box-orange { background-color: #333333; color: #f1c40f; padding: 5px 15px; border: 2px solid #333333; display: flex; align-items: center; }
 .box-green { background-color: #f1c40f; color: #333333; padding: 5px 15px; border: 2px solid #f1c40f; display: flex; align-items: center; }
-.category-bar { background-color: #333333; padding: 10px 0px; display: flex; justify-content: center; gap: 50px; margin-top: 10px; margin-bottom: 20px; width: 100%; }
-.cat-link { font-weight: bold; color: #F5F5DC; font-size: 16px; text-transform: uppercase; cursor: pointer; }
 
-/* THE GRAY BOX (ENCOMPASSES ENTIRE SECTION) */
+.category-bar {
+    background-color: #333333; 
+    padding: 10px 0px;
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin-top: 10px !important;
+    margin-bottom: 20px !important;
+    width: 100% !important;
+}
+.cat-link { 
+    font-weight: bold; 
+    color: #F5F5DC; 
+    font-size: 16px; 
+    text-transform: uppercase; 
+    cursor: pointer; 
+}
+.cat-link:hover { color: #ffffff; }
+
+/* THE GRAY BOX (COVERS ENTIRE ROW CONTENT) */
 .rec-container { 
     background-color: #f2f2f2 !important; 
     border-radius: 12px; 
     padding: 25px !important; 
     margin-bottom: 30px !important;
 }
-.rec-container h3 {
-    margin-top: 0px !important;
-    font-size: 24px !important;
-    margin-bottom: 15px !important;
-}
 
 .stImage > img { width: 100% !important; height: 300px !important; object-fit: cover !important; border-radius: 8px; border: 1px solid #eee; }
 .detail-main-img img { max-height: 300px !important; width: auto !important; object-fit: contain !important; }
-.small-img img { height: 60px !important; width: auto !important; border-radius: 4px; border: 1px solid #ddd; }
 .rating-text { color: #f39c12; font-weight: bold; font-size: 14px; margin: 0; }
 .price-text { font-size: 18px; font-weight: bold; color: #333; margin: 0; }
 .color-circle { height: 22px; width: 22px; border-radius: 50%; display: inline-block; border: 2px solid #ddd; margin-right: 8px; }
@@ -53,11 +62,11 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =========================================================
-# 3. DATA & HELPERS
+# 3. DATA
 # =========================================================
 IMAGE_FOLDER, BACK_FOLDER = "./Pictures_New", "./Pictures_Back"
 PRODUCT_TITLES = ["Adidas Runfalcon 5", "Reebok Energen Run 4", "XTEP Running Shoes", "Skechers Track Ripkent", "WHITIN Running", "Nike Stellar Ride", "Asics Gel-Excite 11", "New Balance Fresh Foam", "Brooks Adrenaline Gts 25", "Nike Vomero 18", "New Balance 411", "Under Armour Charged Edge", "Nike Wildhorse 10", "On Cloud 6", "HOKA Clifton 10", "New Balance 1080"]
-BACK_TITLES = ["Top Rated", "Inspired", "Performance", "Season Best", "New Arrival"]
+BACK_TITLES = ["Top Rated Choice", "Style Inspired by You", "Performance Pick", "Season's Best", "New Arrival"]
 BACK_PRICES = ["$160.00", "$49.99", "$60.00", "$43.99", "$65.00"]
 BACK_RATINGS = [4.7, 4.1, 4.3, 4.4, 4.4]
 PRODUCT_PRICES = ["$60.00", "$69.99", "$139.99", "$69.95", "$49.99", "$59.99", "$90.00", "$139.99", "$160.00", "$169.99", "$49.99", "$65.00", "$149.99", "$138.85", "$129.99", "$159.99"]
@@ -71,40 +80,50 @@ def get_images(folder):
 all_images, back_images = get_images(IMAGE_FOLDER), get_images(BACK_FOLDER)
 
 # =========================================================
-# 4. STATE & CONDITIONAL SIDEBAR (REMOVED ON PRODUCT PAGE)
+# 4. STATE & SIDEBAR
 # =========================================================
 if 'user_interest' not in st.session_state: st.session_state.user_interest = None
 if 'cart_count' not in st.session_state: st.session_state.cart_count = 0
 if 'viewed_history' not in st.session_state: st.session_state.viewed_history = False
 if 'liked' not in st.session_state: st.session_state.liked = False
 
-# Sidebar only shows on Home Grid
+# Remove Sidebar on Product Page
 if st.session_state.user_interest is None:
     with st.sidebar:
         st.header("Refine Search")
         st.divider()
         st.checkbox("Running", value=True); st.checkbox("Training"); st.checkbox("Lifestyle")
         st.subheader("Price Range")
-        st.slider("Filter by Price", 0, 300, (40, 200))
-        if st.button("Reset All Filters", use_container_width=True): st.rerun()
+        st.slider("Filter", 0, 300, (40, 200))
+        if st.button("Reset Filters", use_container_width=True): st.rerun()
 
 # =========================================================
-# 5. HEADER
+# 5. HEADER (REHUNG WITH ALL LINKS)
 # =========================================================
 t1, t2, t3 = st.columns([2, 2, 1.2])
 with t1: st.markdown('<div class="logo-container"><div class="box-orange">BEST</div><div class="box-green">SHOP</div></div>', unsafe_allow_html=True)
 with t2: st.text_input("Search", placeholder="Search...", label_visibility="collapsed")
 with t3: st.markdown(f"<p style='text-align:right; padding-top:20px; font-weight:bold;'>🛒 Cart ({st.session_state.cart_count})</p>", unsafe_allow_html=True)
-st.markdown('<div class="category-bar"><span class="cat-link">Home</span><span class="cat-link">Categories</span><span class="cat-link">Brands</span></div>', unsafe_allow_html=True)
+
+st.markdown('''
+    <div class="category-bar">
+        <span class="cat-link">Home</span>
+        <span class="cat-link">Categories</span>
+        <span class="cat-link">New Arrivals</span>
+        <span class="cat-link">Brands</span>
+        <span class="cat-link">Checkout</span>
+        <span class="cat-link">Contact</span>
+    </div>
+''', unsafe_allow_html=True)
 
 # =========================================================
 # 6. MAIN CONTENT
 # =========================================================
 if st.session_state.user_interest is None:
-    # GRID VIEW
+    # --- GRID VIEW ---
     for r in range(4):
         if r == 1 and st.session_state.viewed_history:
-            # INTEGRATED GRAY BOX LAYOUT
+            # Full Gray Row Layout
             st.markdown('<div class="rec-container">', unsafe_allow_html=True)
             st.subheader("Similar to what you just viewed")
             rel_cols = st.columns(5)
@@ -131,7 +150,7 @@ if st.session_state.user_interest is None:
                         st.session_state.viewed_history = True
                         st.rerun()
 else:
-    # PRODUCT DETAIL VIEW (Sidebar is now Hidden)
+    # --- PRODUCT DETAIL VIEW ---
     item = st.session_state.user_interest
     if st.button("⬅ Back to Collection"):
         st.session_state.user_interest = None
@@ -150,9 +169,9 @@ else:
             with sub2: st.image(all_images[17])
                 
     with c_buy:
-        title_col, heart_col = st.columns([5, 1])
-        title_col.header(item['name'])
-        if heart_col.button("❤️" if st.session_state.liked else "🤍", key="h_btn"):
+        t_col, h_col = st.columns([5, 1])
+        t_col.header(item['name'])
+        if h_col.button("❤️" if st.session_state.liked else "🤍", key="h_btn"):
             st.session_state.liked = not st.session_state.liked
             st.rerun()
             
@@ -172,7 +191,7 @@ else:
             st.toast("Added!")
         b2.button("BUY", key="buy_now", use_container_width=True)
 
-    # 3-SECOND DOCK (CENTERED CONTENT)
+    # --- CENTERED DOCK (3s DELAY) ---
     rel_indices = [11, 10, 3, 14]
     cards_html = ""
     for i in rel_indices:

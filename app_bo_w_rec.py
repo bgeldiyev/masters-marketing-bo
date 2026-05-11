@@ -37,9 +37,8 @@ st.markdown("""
         object-fit: cover !important; border-radius: 8px; border: 1px solid #eee;
     }
 
-    /* --- THE TRUE BACKGROUND FIX --- */
-    /* We target the entire row container that holds our special anchor */
-    [data-testid="stVerticalBlock"]:has(.rec-panel-anchor) {
+    /* --- FIXED GRAY BACKGROUND PANEL --- */
+    .rec-panel {
         background-color: #555555 !important;
         padding: 40px !important;
         border-radius: 20px !important;
@@ -47,16 +46,14 @@ st.markdown("""
         margin: 20px 0px !important;
     }
 
-    /* Force all text inside that block to be white */
-    [data-testid="stVerticalBlock"]:has(.rec-panel-anchor) h3,
-    [data-testid="stVerticalBlock"]:has(.rec-panel-anchor) b,
-    [data-testid="stVerticalBlock"]:has(.rec-panel-anchor) p,
-    [data-testid="stVerticalBlock"]:has(.rec-panel-anchor) span {
+    .rec-panel h3,
+    .rec-panel b,
+    .rec-panel p,
+    .rec-panel span {
         color: white !important;
     }
 
-    /* Ensure images in the gray area have white backgrounds so they pop */
-    [data-testid="stVerticalBlock"]:has(.rec-panel-anchor) img {
+    .rec-panel img {
         background-color: white !important;
         padding: 8px;
         border-radius: 10px;
@@ -141,9 +138,8 @@ else:
         for r in range(4):
             # THE RECOMMENDATION PANEL
             if r == 1 and st.session_state.viewed_history:
-                # We use an outer container to hold the anchor
                 with st.container():
-                    st.markdown('<span class="rec-panel-anchor"></span>', unsafe_allow_html=True)
+                    st.markdown('<div class="rec-panel">', unsafe_allow_html=True)
                     st.subheader("Similar to what you just viewed")
                     
                     rel_cols = st.columns(5) 
@@ -154,6 +150,8 @@ else:
                                 st.markdown(f"**{BACK_TITLES[i]}**")
                                 st.markdown(f'<p style="color: #f1c40f !important; margin: 0;">{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})</p>', unsafe_allow_html=True)
                                 st.markdown(f'<p style="color: white !important; font-weight: bold; margin: 0;">{BACK_PRICES[i]}</p>', unsafe_allow_html=True)
+
+                    st.markdown('</div>', unsafe_allow_html=True)
 
             # MAIN GRID
             cols = st.columns(4)

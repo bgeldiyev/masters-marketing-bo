@@ -136,26 +136,30 @@ if not all_images:
 else:
     if st.session_state.user_interest is None:
         for r in range(4):
-            # THE RECOMMENDATION PANEL
+
+            # --- RECOMMENDATION PANEL ---
             if r == 1 and st.session_state.viewed_history:
-                st.markdown('<div class="rec-panel">', unsafe_allow_html=True)   # ← BOX STARTS HERE
 
-                with st.container():
-                    st.subheader("Similar to what you just viewed")
+                # OPEN PANEL + TITLE INSIDE HTML
+                st.markdown("""
+                    <div class="rec-panel">
+                        <h3>Similar to what you just viewed</h3>
+                """, unsafe_allow_html=True)
 
-                    rel_cols = st.columns(5) 
-                    for i in range(5):
-                        if i < len(back_images):
-                            with rel_cols[i]:
-                                st.image(back_images[i])
-                                st.markdown(f"**{BACK_TITLES[i]}**")
-                                st.markdown(f'<p style="color: #f1c40f !important; margin: 0;">{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})</p>', unsafe_allow_html=True)
-                                st.markdown(f'<p style="color: white !important; font-weight: bold; margin: 0;">{BACK_PRICES[i]}</p>', unsafe_allow_html=True)
+                # ITEMS (widgets cannot be inside HTML)
+                rel_cols = st.columns(5)
+                for i in range(5):
+                    if i < len(back_images):
+                        with rel_cols[i]:
+                            st.image(back_images[i])
+                            st.markdown(f"**{BACK_TITLES[i]}**")
+                            st.markdown(f'<p style="color: #f1c40f !important; margin: 0;">{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})</p>', unsafe_allow_html=True)
+                            st.markdown(f'<p style="color: white !important; font-weight: bold; margin: 0;">{BACK_PRICES[i]}</p>', unsafe_allow_html=True)
 
-                st.markdown('</div>', unsafe_allow_html=True)   # ← BOX ENDS HERE
+                # CLOSE PANEL
+                st.markdown("</div>", unsafe_allow_html=True)
 
-                
-            # MAIN GRID
+            # --- MAIN GRID ---
             cols = st.columns(4)
             for c in range(4):
                 idx = r * 4 + c
@@ -172,6 +176,7 @@ else:
                                 st.rerun()
                             else:
                                 st.toast("Demo restricted to Reebok.")
+
     else:
         # DETAIL VIEW
         item = st.session_state.user_interest

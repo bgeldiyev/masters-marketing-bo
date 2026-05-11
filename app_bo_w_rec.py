@@ -1,5 +1,7 @@
 import os
 
+import base64
+
 import streamlit as st
 
 # --- 1. CONFIG ---

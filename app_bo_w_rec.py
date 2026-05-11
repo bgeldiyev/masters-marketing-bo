@@ -1,7 +1,5 @@
 import os
 
-import base64
-
 import streamlit as st
 
 # --- 1. CONFIG ---
@@ -39,44 +37,37 @@ st.markdown("""
         object-fit: cover !important; border-radius: 8px; border: 1px solid #eee;
     }
 
-    /* --- FIXED GRAY BACKGROUND PANEL --- */
-    .rec-panel {
-        background-color: #555555 !important;
-        padding: 40px !important;
-        border-radius: 20px !important;
-        border: 1px solid #777777 !important;
-        margin: 20px 0px !important;
+    /* THE WEB-STABLE CONTAINER (The Gray Box) */
+    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) {
+        background-color: #f2f2f2 !important;
+        border-radius: 12px !important;
+        padding: 25px !important;
+        border: 1px solid #ddd !important;
+        margin-top: 15px !important; margin-bottom: 25px !important;
     }
 
-    .rec-panel h3,
-    .rec-panel b,
-    .rec-panel p,
-    .rec-panel span {
-        color: white !important;
-    }
-
-    .rec-panel img {
-        background-color: white !important;
-        padding: 8px;
-        border-radius: 10px;
+    /* Detail View Image Styling */
+    .small-img img {
+        height: 80px !important; width: auto !important;
+        border-radius: 4px; border: 1px solid #ddd; object-fit: contain !important;
     }
 
     /* Rating & Prices */
     .rating-text { color: #f39c12; font-weight: bold; font-size: 14px; margin: 0; }
     .price-text { font-size: 18px; font-weight: bold; color: #333; margin: 0; }
-    
     .color-circle {
         height: 22px; width: 22px; border-radius: 50%; display: inline-block; 
         border: 2px solid #ddd; margin-right: 8px;
     }
 
+    /* Mobile fix */
     @media (max-width: 680px) {
         [data-testid="column"] { width: 100% !important; flex: 1 1 100% !important; min-width: 100% !important; }
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. DATA ---
+# --- 3. DATA RESTORATION ---
 IMAGE_FOLDER = "./Pictures_New" 
 BACK_FOLDER = "./Pictures_Back" 
 
@@ -111,7 +102,7 @@ if 'cart_count' not in st.session_state: st.session_state.cart_count = 0
 if 'liked' not in st.session_state: st.session_state.liked = False
 if 'viewed_history' not in st.session_state: st.session_state.viewed_history = False 
 
-# --- 5. SIDEBAR ---
+# --- 5. SIDEBAR (Full Restoration) ---
 if st.session_state.user_interest is None:
     with st.sidebar:
         st.header("Refine Search")
@@ -134,47 +125,25 @@ st.markdown('<div class="category-bar"><span class="cat-link">Home</span><span c
 
 # --- 7. MAIN CONTENT ---
 if not all_images:
-    st.info("Check folder 'Pictures_New'.")
+    st.info("Ensure folder 'Pictures_New' contains images.")
 else:
     if st.session_state.user_interest is None:
         for r in range(4):
-
-            # --- RECOMMENDATION PANEL ---
+            # THE RECOMMENDATION PANEL
             if r == 1 and st.session_state.viewed_history:
+                with st.container(border=True):
+                    st.markdown('<span class="web-container-anchor"></span>', unsafe_allow_html=True)
+                    st.subheader("Similar to what you just viewed")
+                    rel_cols = st.columns(5) 
+                    for i in range(5):
+                        if i < len(back_images):
+                            with rel_cols[i]:
+                                st.image(back_images[i])
+                                st.markdown(f"**{BACK_TITLES[i]}**")
+                                st.markdown(f'<p class="rating-text">{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})</p>', unsafe_allow_html=True)
+                                st.markdown(f'<p class="price-text">{BACK_PRICES[i]}</p>', unsafe_allow_html=True)
 
-                # Build HTML for items
-                items_html = ""
-                for i in range(5):
-                    if i < len(back_images):
-                        img_b64 = img_to_base64(back_images[i])
-                        title = BACK_TITLES[i]
-                        rating = get_star_string(BACK_RATINGS[i])
-                        price = BACK_PRICES[i]
-
-                        items_html += f"""
-                        <td style="text-align:center; padding:10px;">
-                            <img src="data:image/png;base64,{img_b64}" 
-                                 style="width:150px; border-radius:10px; background:white; padding:8px;">
-                            <div style="color:white; font-weight:bold; margin-top:8px;">{title}</div>
-                            <div style="color:#f1c40f; margin:0;">{rating} ({BACK_RATINGS[i]})</div>
-                            <div style="color:white; font-weight:bold; margin-top:4px;">{price}</div>
-                        </td>
-                        """
-
-                # Render full panel as HTML
-                st.markdown(f"""
-                <div class="rec-panel">
-                    <h3>Similar to what you just viewed</h3>
-                    <table style="width:100%; text-align:center;">
-                        <tr>
-                            {items_html}
-                        </tr>
-                    </table>
-                </div>
-                """, unsafe_allow_html=True)
-
-
-            # --- MAIN GRID ---
+            # GRID
             cols = st.columns(4)
             for c in range(4):
                 idx = r * 4 + c
@@ -191,38 +160,59 @@ else:
                                 st.rerun()
                             else:
                                 st.toast("Demo restricted to Reebok.")
-
     else:
-        # DETAIL VIEW
+        # DETAIL VIEW (Full Feature Restoration)
         item = st.session_state.user_interest
         if st.button("⬅ Back to Collection"):
             st.session_state.user_interest = None
             st.rerun()
             
         c_left, c_img, c_gap, c_buy, c_right = st.columns([0.6, 1, 0.3, 1, 0.6])
+        
         with c_img:
             st.image(item['path'])
             st.write("### Editions")
             sub1, sub2, _ = st.columns([1, 1, 1.5]) 
+            # Showing additional images if available
             if len(all_images) > 16:
-                with sub1: st.image(all_images[16])
+                with sub1:
+                    st.markdown('<div class="small-img">', unsafe_allow_html=True)
+                    st.image(all_images[16])
+                    st.markdown('</div>', unsafe_allow_html=True)
             if len(all_images) > 17:
-                with sub2: st.image(all_images[17])
+                with sub2:
+                    st.markdown('<div class="small-img">', unsafe_allow_html=True)
+                    st.image(all_images[17])
+                    st.markdown('</div>', unsafe_allow_html=True)
                 
         with c_buy:
-            st.header(item['name'])
+            title_col, heart_col = st.columns([5, 1])
+            title_col.header(item['name'])
+            if heart_col.button("❤️" if st.session_state.liked else "🤍", key="heart_btn"):
+                st.session_state.liked = not st.session_state.liked
+                st.rerun()
+            
             st.markdown(f'<p class="rating-text" style="font-size:18px;">{get_star_string(item["rating"])} ({item["rating"]})</p>', unsafe_allow_html=True)
             st.subheader(item['price'])
+            
+            st.write("**Colors**")
+            c_cols = st.columns([1, 1, 1, 6])
+            for i, color in enumerate(["gray", "white", "black"]):
+                c_cols[i].markdown(f'<div class="color-circle" style="background-color: {color};"></div>', unsafe_allow_html=True)
+            
             st.write("**Size**")
             s_cols = st.columns(5)
             for i, s in enumerate(["42", "43", "44", "45", "46"]):
                 s_cols[i].button(s, key=f"sz_{s}", use_container_width=True)
             
             st.divider()
-            if st.button("ADD TO CART", use_container_width=True, type="primary"):
+            b1, b2 = st.columns(2)
+            if b1.button("ADD", key="main_add", use_container_width=True, type="primary"):
                 st.session_state.cart_count += 1
                 st.toast("Added!")
+            b2.button("BUY", key="buy_now", use_container_width=True)
 
+        # BOTTOM RELATED (Full Restoration)
         st.write("---")
         st.subheader("Because you viewed this, you may also like")
         rel_indices = [11, 10, 3, 14] 

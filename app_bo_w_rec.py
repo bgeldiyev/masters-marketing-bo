@@ -37,14 +37,24 @@ st.markdown("""
         object-fit: cover !important; border-radius: 8px; border: 1px solid #eee;
     }
 
-    /* --- THE BOX FIX --- */
-    /* Target the wrapper and force the gray color */
+    /* --- THE ULTIMATE BOX FIX --- */
+    /* 1. Target the outer border wrapper */
     div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) {
-        background-color: #f2f2f2 !important; /* This is the Gray */
-        border-radius: 12px !important;
-        padding: 25px !important;
-        border: 1px solid #ddd !important;
-        margin-top: 15px !important; margin-bottom: 25px !important;
+    background-color: #f2f2f2 !important;
+    border-radius: 12px !important;
+    border: 1px solid #ddd !important;
+    padding: 0 !important; /* Move padding to the inside */
+    }
+
+    /* 2. Target EVERY div inside that wrapper to force transparency */
+    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) div {
+    background-color: transparent !important;
+    background: transparent !important;
+    }
+
+    /* 3. Re-apply the spacing inside so the shoes don't touch the edges */
+    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) > div:nth-child(1) {
+    padding: 25px !important;
     }
     
     /* Force the internal Streamlit div to be transparent so the gray shows through */

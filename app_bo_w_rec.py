@@ -1,4 +1,3 @@
-
 import pandas as pd
 import streamlit as st
 
@@ -20,11 +19,11 @@ def img_to_base64(path):
         return ""
 
 # =========================================================
-# 2. CSS (RESTORED ESSENTIALS)
+# 2. CSS (ALL ESSENTIALS + FIXED DOCK PADDING)
 # =========================================================
 st.markdown("""
 <style>
-.block-container { padding-top: 3.5rem !important; padding-bottom: 100px !important; }
+.block-container { padding-top: 3.5rem !important; padding-bottom: 150px !important; }
 .logo-container { display: flex; font-family: "Arial Black", sans-serif; font-size: 42px; font-weight: 900; letter-spacing: -2px; line-height: 1; }
 .box-orange { background-color: #333333; color: #f1c40f; padding: 5px 15px; border: 2px solid #333333; display: flex; align-items: center; }
 .box-green { background-color: #f1c40f; color: #333333; padding: 5px 15px; border: 2px solid #f1c40f; display: flex; align-items: center; }
@@ -52,7 +51,7 @@ st.markdown("""
 # =========================================================
 IMAGE_FOLDER, BACK_FOLDER = "./Pictures_New", "./Pictures_Back"
 PRODUCT_TITLES = ["Adidas Runfalcon 5", "Reebok Energen Run 4", "XTEP Running Shoes", "Skechers Track Ripkent", "WHITIN Running", "Nike Stellar Ride", "Asics Gel-Excite 11", "New Balance Fresh Foam", "Brooks Adrenaline Gts 25", "Nike Vomero 18", "New Balance 411", "Under Armour Charged Edge", "Nike Wildhorse 10", "On Cloud 6", "HOKA Clifton 10", "New Balance 1080"]
-BACK_TITLES = ["Top Rated", "Inspired", "Performance", "Season Best", "New Arrival"]
+BACK_TITLES = ["Top Rated Choice", "Style Inspired by You", "Performance Pick", "Season's Best", "New Arrival"]
 PRODUCT_PRICES = ["$60.00", "$69.99", "$139.99", "$69.95", "$49.99", "$59.99", "$90.00", "$139.99", "$160.00", "$169.99", "$49.99", "$65.00", "$149.99", "$138.85", "$129.99", "$159.99"]
 PRODUCT_RATINGS = [4.3, 4.7, 4.3, 4.5, 4.3, 4.4, 4.5, 4.6, 4.7, 4.3, 4.1, 4.4, 4.4, 4.2, 4.6, 4.5]
 
@@ -69,20 +68,22 @@ all_images, back_images = get_images(IMAGE_FOLDER), get_images(BACK_FOLDER)
 if 'user_interest' not in st.session_state: st.session_state.user_interest = None
 if 'cart_count' not in st.session_state: st.session_state.cart_count = 0
 if 'viewed_history' not in st.session_state: st.session_state.viewed_history = False
+if 'liked' not in st.session_state: st.session_state.liked = False
 
 with st.sidebar:
     st.header("Refine Search")
     st.divider()
     st.checkbox("Running", value=True); st.checkbox("Training"); st.checkbox("Lifestyle")
     st.subheader("Price Range")
-    st.slider("Filter", 0, 300, (40, 200))
+    st.slider("Filter by Price", 0, 300, (40, 200))
+    if st.button("Reset All Filters", use_container_width=True): st.rerun()
 
 # =========================================================
 # 5. HEADER
 # =========================================================
 t1, t2, t3 = st.columns([2, 2, 1.2])
 with t1: st.markdown('<div class="logo-container"><div class="box-orange">BEST</div><div class="box-green">SHOP</div></div>', unsafe_allow_html=True)
-with t2: st.text_input("Search", placeholder="Search...", label_visibility="collapsed")
+with t2: st.text_input("Search", placeholder="Search brand...", label_visibility="collapsed")
 with t3: st.markdown(f"<p style='text-align:right; padding-top:20px; font-weight:bold;'>🛒 Cart ({st.session_state.cart_count})</p>", unsafe_allow_html=True)
 st.markdown('<div class="category-bar"><span class="cat-link">Home</span><span class="cat-link">Categories</span><span class="cat-link">Brands</span></div>', unsafe_allow_html=True)
 
@@ -99,6 +100,7 @@ if st.session_state.user_interest is None:
                 with rel_cols[i]:
                     st.image(back_images[i])
                     st.markdown(f"**{BACK_TITLES[i]}**")
+                    st.markdown(f'<p class="rating-text">{get_star_string(4.5)}</p>', unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
         cols = st.columns(4)
@@ -109,6 +111,7 @@ if st.session_state.user_interest is None:
                     st.image(all_images[idx])
                     st.markdown(f"**{PRODUCT_TITLES[idx]}**")
                     st.markdown(f'<p class="rating-text">{get_star_string(PRODUCT_RATINGS[idx])}</p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="price-text">{PRODUCT_PRICES[idx]}</p>', unsafe_allow_html=True)
                     if st.button("View Product", key=f"v_{idx}", use_container_width=True):
                         st.session_state.user_interest = {"idx": idx, "path": all_images[idx], "name": PRODUCT_TITLES[idx], "price": PRODUCT_PRICES[idx], "rating": PRODUCT_RATINGS[idx]}
                         st.session_state.viewed_history = True
@@ -116,45 +119,63 @@ if st.session_state.user_interest is None:
 else:
     # PRODUCT DETAIL VIEW
     item = st.session_state.user_interest
-    if st.button("⬅ Back"):
+    if st.button("⬅ Back to Collection"):
         st.session_state.user_interest = None
         st.rerun()
         
-    c1, c2, gap, c3, c4 = st.columns([0.1, 1, 0.1, 1, 0.1])
-    with c2:
+    c_left, c_img, c_gap, c_buy, c_right = st.columns([0.6, 1, 0.3, 1, 0.6])
+    with c_img:
         st.markdown('<div class="detail-main-img">', unsafe_allow_html=True)
         st.image(item['path'])
         st.markdown('</div>', unsafe_allow_html=True)
-    with c3:
-        st.header(item['name'])
-        st.markdown(f'<p class="rating-text" style="font-size:18px;">{get_star_string(item["rating"])}</p>', unsafe_allow_html=True)
+        
+        st.write("### Editions")
+        sub1, sub2, _ = st.columns([1, 1, 1.5])
+        if len(all_images) > 17:
+            with sub1: st.markdown('<div class="small-img">', unsafe_allow_html=True); st.image(all_images[16]); st.markdown('</div>', unsafe_allow_html=True)
+            with sub2: st.markdown('<div class="small-img">', unsafe_allow_html=True); st.image(all_images[17]); st.markdown('</div>', unsafe_allow_html=True)
+                
+    with c_buy:
+        title_col, heart_col = st.columns([5, 1])
+        title_col.header(item['name'])
+        if heart_col.button("❤️" if st.session_state.liked else "🤍", key="h_btn"):
+            st.session_state.liked = not st.session_state.liked
+            st.rerun()
+            
+        st.markdown(f'<p class="rating-text" style="font-size:18px;">{get_star_string(item["rating"])} ({item["rating"]})</p>', unsafe_allow_html=True)
         st.subheader(item['price'])
         st.write("**Colors**")
-        st.markdown('<div class="color-circle" style="background-color:gray;"></div><div class="color-circle" style="background-color:black;"></div>', unsafe_allow_html=True)
+        st.markdown('<div class="color-circle" style="background-color:gray;"></div><div class="color-circle" style="background-color:white;"></div><div class="color-circle" style="background-color:black;"></div>', unsafe_allow_html=True)
+        
+        st.write("**Size**")
+        s_cols = st.columns(5)
+        for i, s in enumerate(["42", "43", "44", "45", "46"]): s_cols[i].button(s, key=f"sz_{s}")
+        
+        st.divider()
         if st.button("ADD TO CART", use_container_width=True, type="primary"):
             st.session_state.cart_count += 1
-            st.toast("Added!")
+            st.toast("Added to Cart!")
 
     # =========================================================
-    # 7. THE DOCK (AUTO-SHOWS AFTER 3 SECONDS)
+    # 7. THE DOCK (CENTERED CONTENT + 3s DELAY)
     # =========================================================
     rel_indices = [11, 10, 3, 14]
     cards_html = ""
     for i in rel_indices:
         img64 = img_to_base64(all_images[i])
         cards_html += f"""
-        <div style="min-width:160px; background:#f9f9f9; padding:10px; border-radius:10px; text-align:center; border:1px solid #ddd;">
-            <img src="data:image/png;base64,{img64}" style="width:100%; height:100px; object-fit:cover; border-radius:5px;">
-            <div style="font-size:12px; font-weight:bold; margin-top:5px;">{PRODUCT_TITLES[i]}</div>
-            <div style="color:#f39c12; font-size:10px;">{get_star_string(PRODUCT_RATINGS[i])}</div>
-            <div style="font-size:12px;">{PRODUCT_PRICES[i]}</div>
+        <div style="min-width:180px; max-width:200px; background:#f9f9f9; padding:15px; border-radius:12px; text-align:center; border:1px solid #ddd; flex: 0 0 auto;">
+            <img src="data:image/png;base64,{img64}" style="width:100%; height:110px; object-fit:cover; border-radius:8px; margin-bottom:8px;">
+            <div style="font-size:13px; font-weight:bold; color:#333; margin-bottom:4px; height:32px; overflow:hidden;">{PRODUCT_TITLES[i]}</div>
+            <div style="color:#f39c12; font-size:12px; margin-bottom:4px;">{get_star_string(PRODUCT_RATINGS[i])}</div>
+            <div style="font-size:14px; font-weight:700; color:#222;">{PRODUCT_PRICES[i]}</div>
         </div>
         """
 
     dock_component = f"""
-    <div id="dock-container" style="position:fixed; bottom:-300px; left:50%; transform:translateX(-50%); width:90%; background:white; padding:20px; border-radius:20px 20px 0 0; box-shadow:0 -10px 30px rgba(0,0,0,0.15); transition: bottom 0.8s ease; z-index:9999; font-family: sans-serif;">
-        <h3 style="margin-top:0;">Because you viewed this...</h3>
-        <div style="display:flex; gap:15px; overflow-x:auto; padding-bottom:10px;">
+    <div id="dock-container" style="position:fixed; bottom:-400px; left:50%; transform:translateX(-50%); width:100%; max-width:1200px; background:white; padding:25px; border-radius:25px 25px 0 0; box-shadow:0 -10px 40px rgba(0,0,0,0.2); transition: bottom 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.1); z-index:9999; font-family: sans-serif;">
+        <h3 style="margin-top:0; text-align:center; color:#333; margin-bottom:20px; font-size:20px;">Because you viewed this...</h3>
+        <div style="display:flex; gap:20px; justify-content:center; align-items:center; flex-wrap:nowrap; overflow-x:auto; padding:10px 0;">
             {cards_html}
         </div>
     </div>
@@ -164,4 +185,4 @@ else:
         }}, 3000);
     </script>
     """
-    components.html(dock_component, height=300)
+    components.html(dock_component, height=400)

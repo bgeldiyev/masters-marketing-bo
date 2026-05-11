@@ -1,13 +1,13 @@
-import os
-
-import time
-
+import pandas as pd
 import streamlit as st
+
+import os
+import time
 
 # --- 1. CONFIG ---
 st.set_page_config(page_title="Best Shop | Mixed Portfolio", layout="wide")
 
-# --- 2. CSS (Restored Essentials) ---
+# --- 2. CSS ---
 st.markdown("""
     <style>
     .block-container { padding-top: 3.5rem !important; }
@@ -26,7 +26,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. DATA (Full Set) ---
+# --- 3. DATA ---
 IMAGE_FOLDER, BACK_FOLDER = "./Pictures_New", "./Pictures_Back" 
 PRODUCT_TITLES = ["Adidas Runfalcon 5 (Men)", "Reebok Energen Run 4 (Women)", "XTEP Running Shoes (Men)", "Skechers Track Ripkent Sneaker (Men)", "WHITIN Running Shoes (Unisex)", "Nike Stellar Ride (Kids)", "Asics Gel-Excite 11 Sneaker (Men)", "New Balance Fresh Foam", "Brooks Adrenaline Gts 25 (Men)", "Nike Vomero 18 GORE-TEX (Men)", "New Balance 411 Sneaker (Men)", "Under Armour Charged Edge (Men)", "Nike Wildhorse 10 (Men)", "On Cloud 6 Sneaker (Men)", "HOKA Clifton 10 (Women)", "New Balance 1080"]
 BACK_TITLES = ["Top Rated Choice", "Style Inspired by You", "Performance Pick", "Season's Best", "New Arrival"]
@@ -46,7 +46,7 @@ if 'user_interest' not in st.session_state: st.session_state.user_interest = Non
 if 'cart_count' not in st.session_state: st.session_state.cart_count = 0
 if 'viewed_history' not in st.session_state: st.session_state.viewed_history = False 
 
-# --- 5. SIDEBAR (Restored) ---
+# --- 5. SIDEBAR ---
 with st.sidebar:
     st.header("Refine Search")
     st.divider()
@@ -55,14 +55,14 @@ with st.sidebar:
     st.slider("Filter by Price", 0, 300, (40, 200))
     if st.button("Reset All Filters", use_container_width=True): st.rerun()
 
-# --- 6. HEADER (Restored) ---
+# --- 6. HEADER ---
 t1, t2, t3 = st.columns([2, 2, 1.2])
 with t1: st.markdown('<div class="logo-container"><div class="box-orange">BEST</div><div class="box-green">SHOP</div></div>', unsafe_allow_html=True)
-with t2: st.text_input("Search", placeholder="Search...", label_visibility="collapsed")
+with t2: st.text_input("Search", placeholder="Search brand...", label_visibility="collapsed")
 with t3: st.markdown(f"<p style='text-align:right; padding-top:20px; font-weight:bold;'>🛒 Cart ({st.session_state.cart_count})</p>", unsafe_allow_html=True)
 st.markdown('<div class="category-bar"><span class="cat-link">Home</span><span class="cat-link">Categories</span><span class="cat-link">Brands</span></div>', unsafe_allow_html=True)
 
-# --- 7. MAIN LOGIC (Clean Switch) ---
+# --- 7. MAIN ROUTING ---
 if st.session_state.page == "home":
     for r in range(4):
         if r == 1 and st.session_state.viewed_history:
@@ -87,12 +87,10 @@ if st.session_state.page == "home":
                         st.session_state.user_interest = {"idx": idx, "path": all_images[idx], "name": PRODUCT_TITLES[idx], "price": PRODUCT_PRICES[idx], "rating": PRODUCT_RATINGS[idx]}
                         st.session_state.viewed_history, st.session_state.page = True, "detail"
                         st.rerun()
-
 else:
-    # --- PRODUCT DETAIL VIEW (Restored Details) ---
     item = st.session_state.user_interest
     if st.button("⬅ Back to Collection"):
-        st.session_state.page = "home"
+        st.session_state.page, st.session_state.user_interest = "home", None
         st.rerun()
         
     c_left, c_img, c_gap, c_buy, c_right = st.columns([0.6, 1, 0.3, 1, 0.6])
@@ -102,7 +100,7 @@ else:
         st.markdown('</div>', unsafe_allow_html=True)
         st.write("### Editions")
         sub1, sub2, _ = st.columns([1, 1, 1.5])
-        if len(all_images) > 16:
+        if len(all_images) > 17:
             with sub1: st.markdown('<div class="small-img">', unsafe_allow_html=True); st.image(all_images[16]); st.markdown('</div>', unsafe_allow_html=True)
             with sub2: st.markdown('<div class="small-img">', unsafe_allow_html=True); st.image(all_images[17]); st.markdown('</div>', unsafe_allow_html=True)
                 
@@ -122,7 +120,7 @@ else:
             st.session_state.cart_count += 1
             st.toast("Added!")
 
-    # --- THE DELAYED DOCKER (No Brooks Ghosting) ---
+    # --- DOCKER LOGIC ---
     docker_slot = st.empty()
     time.sleep(3)
     with docker_slot.container():

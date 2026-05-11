@@ -40,7 +40,7 @@ st.markdown("""
     /* --- THE NUCLEAR BOX FIX --- */
     /* This targets the container and forces a visual darkening filter */
     div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) {
-    background-color: #f2f2f2 !important;
+    background-color: #555555 !important;
     border-radius: 12px !important;
     border: 1px solid #ddd !important;
     /* This forces the browser to render the white as gray */

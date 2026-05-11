@@ -45,7 +45,6 @@ st.markdown("""
     }
     .cat-link:hover { color: #ffffff; }
 
-    /* MAIN GRID IMAGES */
     .stImage > img { 
         width: 100% !important;
         height: 300px !important;   
@@ -54,7 +53,6 @@ st.markdown("""
         border: 1px solid #eee;
     }
 
-    /* DETAIL IMAGE */
     .detail-main-img img {
         max-height: 300px !important; 
         width: auto !important;
@@ -133,19 +131,18 @@ def get_images(folder):
 all_images = get_images(IMAGE_FOLDER)
 back_images = get_images(BACK_FOLDER)
 
-# --- 5. SIDEBAR ---
-if st.session_state.user_interest is None:
-    with st.sidebar:
-        st.header("Refine Search")
-        st.divider()
-        st.subheader("Category")
-        st.checkbox("Running", value=True)
-        st.checkbox("Training")
-        st.checkbox("Lifestyle")
-        st.subheader("Price Range")
-        st.slider("Filter by Price", 0, 300, (40, 200))
-        if st.button("Reset All Filters", use_container_width=True):
-            st.rerun()
+# --- 5. SIDEBAR (FILTERS KEPT) ---
+with st.sidebar:
+    st.header("Refine Search")
+    st.divider()
+    st.subheader("Category")
+    st.checkbox("Running", value=True)
+    st.checkbox("Training")
+    st.checkbox("Lifestyle")
+    st.subheader("Price Range")
+    st.slider("Filter by Price", 0, 300, (40, 200))
+    if st.button("Reset All Filters", use_container_width=True):
+        st.rerun()
 
 # --- 6. HEADER ---
 t1, t2, t3 = st.columns([2, 2, 1.2])
@@ -172,7 +169,7 @@ if not all_images:
     st.info(f"Please add images to the folder.")
 else:
     if st.session_state.user_interest is None:
-        # GRID VIEW
+        # --- GRID VIEW (Similar items history kept here) ---
         for r in range(4): 
             if r == 1 and st.session_state.viewed_history:
                 with st.container():
@@ -260,18 +257,24 @@ else:
                 st.toast("Added!")
             b2.button("BUY", key="buy_now", use_container_width=True)
 
-        # --- DELAYED RECO DOCKER ---
-        rec_placeholder = st.empty()
+        # --- DELAYED "BECAUSE" DOCKER ---
+        # 1. Initialize slot
+        docker_slot = st.empty()
+        
+        # 2. 3-Second Wait (Page is clean)
         time.sleep(3)
         
-        with rec_placeholder.container():
+        # 3. Render "Because" items inside narrower layout
+        with docker_slot.container():
             st.write("---")
-            st.subheader("Because you viewed this, you may also like")
-            rel_indices = [11, 10, 3, 14] 
-            rel_cols = st.columns(4)
-            for i, r_idx in enumerate(rel_indices):
-                with rel_cols[i]:
-                    st.image(all_images[r_idx], use_container_width=True)
-                    st.markdown(f"**{PRODUCT_TITLES[r_idx]}**")
-                    st.markdown(f'<p class="rating-text">{get_star_string(PRODUCT_RATINGS[r_idx])} ({PRODUCT_RATINGS[r_idx]})</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="price-text" style="font-size:15px;">{PRODUCT_PRICES[r_idx]}</p>', unsafe_allow_html=True)
+            _, mid_dock, _ = st.columns([0.5, 3, 0.5]) # Squeezed width
+            with mid_dock:
+                st.subheader("Because you viewed this, you may also like")
+                rel_indices = [11, 10, 3, 14] 
+                rel_cols = st.columns(4)
+                for i, r_idx in enumerate(rel_indices):
+                    with rel_cols[i]:
+                        st.image(all_images[r_idx], use_container_width=True)
+                        st.markdown(f"**{PRODUCT_TITLES[r_idx]}**")
+                        st.markdown(f'<p class="rating-text">{get_star_string(PRODUCT_RATINGS[r_idx])}</p>', unsafe_allow_html=True)
+                        st.markdown(f'<p class="price-text" style="font-size:15px;">{PRODUCT_PRICES[r_idx]}</p>', unsafe_allow_html=True)

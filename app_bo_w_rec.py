@@ -37,21 +37,6 @@ st.markdown("""
         object-fit: cover !important; border-radius: 8px; border: 1px solid #eee;
     }
 
-    /* THE WEB-STABLE CONTAINER (The Gray Box) */
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) {
-        background-color: #f2f2f2 !important;
-        border-radius: 12px !important;
-        padding: 25px !important;
-        border: 1px solid #ddd !important;
-        margin-top: 15px !important; margin-bottom: 25px !important;
-    }
-
-    /* Detail View Image Styling */
-    .small-img img {
-        height: 80px !important; width: auto !important;
-        border-radius: 4px; border: 1px solid #ddd; object-fit: contain !important;
-    }
-
     /* Rating & Prices */
     .rating-text { color: #f39c12; font-weight: bold; font-size: 14px; margin: 0; }
     .price-text { font-size: 18px; font-weight: bold; color: #333; margin: 0; }
@@ -60,23 +45,51 @@ st.markdown("""
         border: 2px solid #ddd; margin-right: 8px;
     }
 
-    /* Mobile fix */
+    /* --- DOCKED POP-UP ANIMATION & STYLE --- */
+    @keyframes slideUp {
+        from { transform: translateY(100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    div[data-testid="stVerticalBlock"]:has(#popup-marker) {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        background-color: #222222 !important;
+        padding: 15px 60px !important;
+        border-top: 4px solid #f1c40f !important;
+        box-shadow: 0px -10px 30px rgba(0,0,0,0.5) !important;
+        z-index: 999999 !important;
+        /* 3s delay before it blocks the products at the bottom */
+        animation: slideUp 0.6s ease-out 3s both;
+    }
+
+    /* Force text in the dock to be white */
+    div[data-testid="stVerticalBlock"]:has(#popup-marker) * { color: white !important; }
+    div[data-testid="stVerticalBlock"]:has(#popup-marker) img { 
+        background-color: white !important; 
+        padding: 4px; border-radius: 5px; height: 100px !important; object-fit: contain !important;
+    }
+
+    /* Detail View Image Styling */
+    .small-img img {
+        height: 80px !important; width: auto !important;
+        border-radius: 4px; border: 1px solid #ddd; object-fit: contain !important;
+    }
+
     @media (max-width: 680px) {
         [data-testid="column"] { width: 100% !important; flex: 1 1 100% !important; min-width: 100% !important; }
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. DATA RESTORATION ---
+# --- 3. DATA ---
 IMAGE_FOLDER = "./Pictures_New" 
 BACK_FOLDER = "./Pictures_Back" 
 
-PRODUCT_TITLES = [
-    "Adidas Runfalcon 5", "Reebok Energen Run 4", "XTEP Running Shoes", "Skechers Track Ripkent", 
-    "WHITIN Running Shoes", "Nike Stellar Ride", "Asics Gel-Excite 11", "New Balance Fresh Foam", 
-    "Brooks Adrenaline Gts 25", "Nike Vomero 18", "New Balance 411", "Under Armour Charged Edge", 
-    "Nike Wildhorse 10", "On Cloud 6", "HOKA Clifton 10", "New Balance 1080"
-]
+PRODUCT_TITLES = ["Adidas Runfalcon 5", "Reebok Energen Run 4", "XTEP Running Shoes", "Skechers Track Ripkent", "WHITIN Running Shoes", "Nike Stellar Ride", "Asics Gel-Excite 11", "New Balance Fresh Foam", "Brooks Adrenaline Gts 25", "Nike Vomero 18", "New Balance 411", "Under Armour Charged Edge", "Nike Wildhorse 10", "On Cloud 6", "HOKA Clifton 10", "New Balance 1080"]
 PRODUCT_PRICES = ["$60.00", "$69.99", "$139.99", "$69.95", "$49.99", "$59.99", "$90.00", "$139.99", "$160.00", "$169.99", "$49.99", "$65.00", "$149.99", "$138.85", "$129.99", "$159.99"]
 PRODUCT_RATINGS = [4.3, 4.7, 4.3, 4.5, 4.3, 4.4, 4.5, 4.6, 4.7, 4.3, 4.1, 4.4, 4.4, 4.2, 4.6, 4.5]
 
@@ -101,8 +114,29 @@ if 'user_interest' not in st.session_state: st.session_state.user_interest = Non
 if 'cart_count' not in st.session_state: st.session_state.cart_count = 0
 if 'liked' not in st.session_state: st.session_state.liked = False
 if 'viewed_history' not in st.session_state: st.session_state.viewed_history = False 
+if 'popup_closed' not in st.session_state: st.session_state.popup_closed = False
 
-# --- 5. SIDEBAR (Full Restoration) ---
+# --- 5. THE DOCKED POP-UP (Appears based on history) ---
+if st.session_state.viewed_history and not st.session_state.popup_closed:
+    with st.container():
+        st.markdown('<div id="popup-marker"></div>', unsafe_allow_html=True)
+        c_txt, c_items, c_close = st.columns([1.5, 5, 0.5])
+        with c_txt:
+            st.markdown("### 🔥 Deals For You")
+            st.caption("Based on your interest")
+        with c_items:
+            rec_cols = st.columns(5)
+            for i in range(5):
+                if i < len(back_images):
+                    with rec_cols[i]:
+                        st.image(back_images[i])
+                        st.markdown(f"<p style='font-size:11px; margin:0;'>{BACK_TITLES[i]}<br><b>{BACK_PRICES[i]}</b></p>", unsafe_allow_html=True)
+        with c_close:
+            if st.button("✖", key="close_dock"):
+                st.session_state.popup_closed = True
+                st.rerun()
+
+# --- 6. SIDEBAR ---
 if st.session_state.user_interest is None:
     with st.sidebar:
         st.header("Refine Search")
@@ -115,7 +149,7 @@ if st.session_state.user_interest is None:
         st.slider("Filter by Price", 0, 300, (40, 200))
         if st.button("Reset All Filters", use_container_width=True): st.rerun()
 
-# --- 6. HEADER ---
+# --- 7. HEADER ---
 t1, t2, t3 = st.columns([2, 2, 1.2])
 with t1: st.markdown('<div class="logo-container"><div class="box-orange">BEST</div><div class="box-green">SHOP</div></div>', unsafe_allow_html=True)
 with t2: st.text_input("Search", placeholder="Search brand or style...", label_visibility="collapsed")
@@ -123,27 +157,12 @@ with t3: st.markdown(f"<p style='text-align:right; padding-top:20px; font-size:1
 
 st.markdown('<div class="category-bar"><span class="cat-link">Home</span><span class="cat-link">Categories</span><span class="cat-link">New Arrivals</span><span class="cat-link">Brands</span><span class="cat-link">Checkout</span><span class="cat-link">Contact</span></div>', unsafe_allow_html=True)
 
-# --- 7. MAIN CONTENT ---
+# --- 8. MAIN CONTENT ---
 if not all_images:
     st.info("Ensure folder 'Pictures_New' contains images.")
 else:
     if st.session_state.user_interest is None:
         for r in range(4):
-            # THE RECOMMENDATION PANEL
-            if r == 1 and st.session_state.viewed_history:
-                with st.container(border=True):
-                    st.markdown('<span class="web-container-anchor"></span>', unsafe_allow_html=True)
-                    st.subheader("Similar to what you just viewed")
-                    rel_cols = st.columns(5) 
-                    for i in range(5):
-                        if i < len(back_images):
-                            with rel_cols[i]:
-                                st.image(back_images[i])
-                                st.markdown(f"**{BACK_TITLES[i]}**")
-                                st.markdown(f'<p class="rating-text">{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})</p>', unsafe_allow_html=True)
-                                st.markdown(f'<p class="price-text">{BACK_PRICES[i]}</p>', unsafe_allow_html=True)
-
-            # GRID
             cols = st.columns(4)
             for c in range(4):
                 idx = r * 4 + c
@@ -157,11 +176,12 @@ else:
                             if idx == 1: st.session_state.viewed_history = True
                             if "Reebok" in PRODUCT_TITLES[idx] or idx == 1:
                                 st.session_state.user_interest = {"idx": idx, "path": all_images[idx], "name": PRODUCT_TITLES[idx], "price": PRODUCT_PRICES[idx], "rating": PRODUCT_RATINGS[idx]}
+                                st.session_state.popup_closed = False # Reset popup for new view
                                 st.rerun()
                             else:
                                 st.toast("Demo restricted to Reebok.")
     else:
-        # DETAIL VIEW (Full Feature Restoration)
+        # DETAIL VIEW
         item = st.session_state.user_interest
         if st.button("⬅ Back to Collection"):
             st.session_state.user_interest = None
@@ -173,7 +193,6 @@ else:
             st.image(item['path'])
             st.write("### Editions")
             sub1, sub2, _ = st.columns([1, 1, 1.5]) 
-            # Showing additional images if available
             if len(all_images) > 16:
                 with sub1:
                     st.markdown('<div class="small-img">', unsafe_allow_html=True)
@@ -212,7 +231,6 @@ else:
                 st.toast("Added!")
             b2.button("BUY", key="buy_now", use_container_width=True)
 
-        # BOTTOM RELATED (Full Restoration)
         st.write("---")
         st.subheader("Because you viewed this, you may also like")
         rel_indices = [11, 10, 3, 14] 

@@ -37,29 +37,26 @@ st.markdown("""
         object-fit: cover !important; border-radius: 8px; border: 1px solid #eee;
     }
 
-    /* --- THE ULTIMATE BOX FIX --- */
-    /* 1. Target the outer border wrapper */
+    /* --- THE NUCLEAR BOX FIX --- */
+    /* This targets the container and forces a visual darkening filter */
     div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) {
     background-color: #f2f2f2 !important;
     border-radius: 12px !important;
     border: 1px solid #ddd !important;
-    padding: 0 !important; /* Move padding to the inside */
+    /* This forces the browser to render the white as gray */
+    filter: brightness(0.95) contrast(1.1); 
+    box-shadow: inset 0 0 0 2000px #f2f2f2 !important;
     }
 
-    /* 2. Target EVERY div inside that wrapper to force transparency */
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) div {
+    /* Force all internal layers to surrender their background color */
+    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) * {
     background-color: transparent !important;
     background: transparent !important;
     }
 
-    /* 3. Re-apply the spacing inside so the shoes don't touch the edges */
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) > div:nth-child(1) {
+    /* Spacing fix */
+    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) > div:first-child {
     padding: 25px !important;
-    }
-    
-    /* Force the internal Streamlit div to be transparent so the gray shows through */
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) > div {
-        background-color: transparent !important;
     }
 
     /* Detail View Image Styling */

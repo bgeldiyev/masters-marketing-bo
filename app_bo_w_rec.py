@@ -37,26 +37,34 @@ st.markdown("""
         object-fit: cover !important; border-radius: 8px; border: 1px solid #eee;
     }
 
-    /* --- THE NUCLEAR BOX FIX --- */
-    /* This targets the container and forces a visual darkening filter */
+    /* --- THE NUCLEAR BOX FIX (RE-ENGINEERED) --- */
+    /* Target the specific container wrapper */
     div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) {
-    background-color: #555555 !important;
-    border-radius: 12px !important;
-    border: 1px solid #ddd !important;
-    /* This forces the browser to render the white as gray */
-    filter: brightness(0.95) contrast(1.1); 
-    box-shadow: inset 0 0 0 2000px #f2f2f2 !important;
+        background-color: #888888 !important; 
+        border: 2px solid #666666 !important;
+        border-radius: 15px !important;
+        /* This removes the 'wash out' filter you had before */
+        filter: none !important;
     }
 
-    /* Force all internal layers to surrender their background color */
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) * {
-    background-color: transparent !important;
-    background: transparent !important;
+    /* Target the inner div that Streamlit uses for background colors */
+    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) > div {
+        background-color: #888888 !important;
     }
 
-    /* Spacing fix */
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) > div:first-child {
-    padding: 25px !important;
+    /* Force all text inside to be White so it doesn't get lost on the gray */
+    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) h3,
+    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) p,
+    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) b,
+    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) div {
+        color: #FFFFFF !important;
+    }
+
+    /* Optional: Keep the image backgrounds white so the shoes stay visible */
+    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) img {
+        background-color: #FFFFFF !important;
+        padding: 5px;
+        border-radius: 10px;
     }
 
     /* Detail View Image Styling */

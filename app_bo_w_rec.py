@@ -37,19 +37,18 @@ st.markdown("""
         object-fit: cover !important; border-radius: 8px; border: 1px solid #eee;
     }
 
-    /* --- CUSTOM GRAY PANEL --- */
-    .custom-gray-panel {
-        background-color: #555555 !important; /* Medium-Dark Gray */
+    /* --- THE CUSTOM GRAY PANEL (FIXED) --- */
+    .gray-rec-panel {
+        background-color: #666666 !important; /* Medium-Dark Gray */
         padding: 30px;
         border-radius: 15px;
-        margin: 20px 0px;
+        border: 1px solid #888888;
+        margin-bottom: 25px;
+        margin-top: 10px;
     }
     
-    /* Force text inside this specific class to be white */
-    .custom-gray-panel h3, 
-    .custom-gray-panel p, 
-    .custom-gray-panel b, 
-    .custom-gray-panel span {
+    /* Ensure all text inside the gray panel is white */
+    .gray-rec-panel h3, .gray-rec-panel p, .gray-rec-panel b, .gray-rec-panel span, .gray-rec-panel div {
         color: white !important;
     }
 
@@ -138,17 +137,18 @@ else:
         for r in range(4):
             # THE RECOMMENDATION PANEL
             if r == 1 and st.session_state.viewed_history:
-                with st.container(border=True): # Border=True is required for the CSS to target it
-                    st.markdown('<span class="web-container-anchor"></span>', unsafe_allow_html=True)
-                    st.subheader("Similar to what you just viewed")
-                    rel_cols = st.columns(5) 
-                    for i in range(5):
-                        if i < len(back_images):
-                            with rel_cols[i]:
-                                st.image(back_images[i])
-                                st.markdown(f"**{BACK_TITLES[i]}**")
-                                st.markdown(f'<p class="rating-text">{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})</p>', unsafe_allow_html=True)
-                                st.markdown(f'<p class="price-text">{BACK_PRICES[i]}</p>', unsafe_allow_html=True)
+                # Custom HTML wrapper to force the gray background
+                st.markdown('<div class="gray-rec-panel">', unsafe_allow_html=True)
+                st.subheader("Similar to what you just viewed")
+                rel_cols = st.columns(5) 
+                for i in range(5):
+                    if i < len(back_images):
+                        with rel_cols[i]:
+                            st.image(back_images[i])
+                            st.markdown(f"**{BACK_TITLES[i]}**")
+                            st.markdown(f'<p class="rating-text" style="color: #f1c40f !important;">{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})</p>', unsafe_allow_html=True)
+                            st.markdown(f'<p class="price-text" style="color: white !important;">{BACK_PRICES[i]}</p>', unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
 
             # GRID
             cols = st.columns(4)

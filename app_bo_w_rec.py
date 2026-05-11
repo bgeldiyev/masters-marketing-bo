@@ -37,23 +37,27 @@ st.markdown("""
         object-fit: cover !important; border-radius: 8px; border: 1px solid #eee;
     }
 
-    /* --- THE GRAY PANEL BACKGROUND FIX --- */
-    .gray-rec-panel {
-        background-color: #555555 !important; /* Solid Mid-Dark Gray */
-        padding: 30px !important;
-        border-radius: 15px;
-        border: 1px solid #777777;
-        margin: 25px 0px !important;
-        width: 100%;
+    /* --- THE GRAY PANEL FIX --- */
+    /* This targets the actual Streamlit container block that holds our anchor */
+    div[data-testid="stVerticalBlock"]:has(.web-container-anchor) {
+        background-color: #555555 !important;
+        padding: 40px !important;
+        border-radius: 20px !important;
+        border: 1px solid #777777 !important;
+        margin-top: 20px !important;
+        margin-bottom: 20px !important;
     }
-    
-    /* Force all text inside the gray box to be white */
-    .gray-rec-panel h3, 
-    .gray-rec-panel p, 
-    .gray-rec-panel b, 
-    .gray-rec-panel span,
-    .gray-rec-panel div {
-        color: #FFFFFF !important;
+
+    /* Force all text inside that gray block to be white */
+    div[data-testid="stVerticalBlock"]:has(.web-container-anchor) * {
+        color: white !important;
+    }
+
+    /* Keep product images clean with white backgrounds inside the gray box */
+    div[data-testid="stVerticalBlock"]:has(.web-container-anchor) img {
+        background-color: white !important;
+        padding: 10px;
+        border-radius: 10px;
     }
 
     /* Detail View Image Styling */
@@ -62,7 +66,7 @@ st.markdown("""
         border-radius: 4px; border: 1px solid #ddd; object-fit: contain !important;
     }
 
-    /* Rating & Prices Defaults */
+    /* Rating & Prices */
     .rating-text { color: #f39c12; font-weight: bold; font-size: 14px; margin: 0; }
     .price-text { font-size: 18px; font-weight: bold; color: #333; margin: 0; }
     .color-circle {
@@ -139,27 +143,22 @@ if not all_images:
 else:
     if st.session_state.user_interest is None:
         for r in range(4):
-            # --- THE RECOMMENDATION PANEL (WITH FIXED BACKGROUND) ---
+            # --- THE RECOMMENDATION PANEL ---
             if r == 1 and st.session_state.viewed_history:
-                # Open the background container
-                st.markdown('<div class="gray-rec-panel">', unsafe_allow_html=True)
-                st.subheader("Similar to what you just viewed")
-                
-                # Content inside the gray box
-                rel_cols = st.columns(5) 
-                for i in range(5):
-                    if i < len(back_images):
-                        with rel_cols[i]:
-                            st.image(back_images[i])
-                            st.markdown(f"**{BACK_TITLES[i]}**")
-                            # Explicit white/yellow labels for visibility on gray
-                            st.markdown(f'<p style="color:#f1c40f !important; margin:0; font-weight:bold;">{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})</p>', unsafe_allow_html=True)
-                            st.markdown(f'<p style="color:white !important; margin:0; font-weight:bold; font-size:16px;">{BACK_PRICES[i]}</p>', unsafe_allow_html=True)
-                
-                # Close the background container
-                st.markdown('</div>', unsafe_allow_html=True)
+                with st.container():
+                    # The anchor must be the first thing inside
+                    st.markdown('<span class="web-container-anchor"></span>', unsafe_allow_html=True)
+                    st.subheader("Similar to what you just viewed")
+                    rel_cols = st.columns(5) 
+                    for i in range(5):
+                        if i < len(back_images):
+                            with rel_cols[i]:
+                                st.image(back_images[i])
+                                st.markdown(f"**{BACK_TITLES[i]}**")
+                                st.markdown(f'{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})')
+                                st.markdown(f'**{BACK_PRICES[i]}**')
 
-            # --- NORMAL PRODUCT GRID ---
+            # --- MAIN GRID ---
             cols = st.columns(4)
             for c in range(4):
                 idx = r * 4 + c
@@ -177,7 +176,7 @@ else:
                             else:
                                 st.toast("Demo restricted to Reebok.")
     else:
-        # DETAIL VIEW
+        # --- DETAIL VIEW ---
         item = st.session_state.user_interest
         if st.button("⬅ Back to Collection"):
             st.session_state.user_interest = None

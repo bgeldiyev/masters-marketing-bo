@@ -8,6 +8,7 @@ st.set_page_config(page_title="Best Shop | Mixed Portfolio", layout="wide")
 # --- 2. THE COMPREHENSIVE CSS ---
 st.markdown("""
     <style>
+    /* Global layout tweaks */
     .block-container { padding-top: 3.5rem !important; }
     
     /* Branding */
@@ -37,23 +38,24 @@ st.markdown("""
         object-fit: cover !important; border-radius: 8px; border: 1px solid #eee;
     }
 
-    /* --- THE GRAY PANEL FIX --- */
-    /* This targets the actual Streamlit container block that holds our anchor */
-    div[data-testid="stVerticalBlock"]:has(.web-container-anchor) {
+    /* --- THE SURGICAL GRAY PANEL FIX --- */
+    /* We target a VerticalBlock that is a DIRECT child of another VerticalBlock.
+       This ensures we hit the 'inner_box' container and not the whole page.
+    */
+    div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"]:has(.web-container-anchor) {
         background-color: #555555 !important;
         padding: 40px !important;
         border-radius: 20px !important;
         border: 1px solid #777777 !important;
-        margin-top: 20px !important;
-        margin-bottom: 20px !important;
+        margin: 20px 0px !important;
     }
 
-    /* Force all text inside that gray block to be white */
+    /* Force all text inside only THAT box to be white */
     div[data-testid="stVerticalBlock"]:has(.web-container-anchor) * {
         color: white !important;
     }
 
-    /* Keep product images clean with white backgrounds inside the gray box */
+    /* Ensure images in the gray box have white backgrounds so they pop */
     div[data-testid="stVerticalBlock"]:has(.web-container-anchor) img {
         background-color: white !important;
         padding: 10px;
@@ -143,22 +145,26 @@ if not all_images:
 else:
     if st.session_state.user_interest is None:
         for r in range(4):
-            # --- THE RECOMMENDATION PANEL ---
+            # THE RECOMMENDATION PANEL
             if r == 1 and st.session_state.viewed_history:
+                # Outer wrapper container
                 with st.container():
-                    # The anchor must be the first thing inside
-                    st.markdown('<span class="web-container-anchor"></span>', unsafe_allow_html=True)
-                    st.subheader("Similar to what you just viewed")
-                    rel_cols = st.columns(5) 
-                    for i in range(5):
-                        if i < len(back_images):
-                            with rel_cols[i]:
-                                st.image(back_images[i])
-                                st.markdown(f"**{BACK_TITLES[i]}**")
-                                st.markdown(f'{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})')
-                                st.markdown(f'**{BACK_PRICES[i]}**')
+                    # Inner container that the CSS will turn gray
+                    inner_box = st.container()
+                    with inner_box:
+                        st.markdown('<span class="web-container-anchor"></span>', unsafe_allow_html=True)
+                        st.subheader("Similar to what you just viewed")
+                        
+                        rel_cols = st.columns(5) 
+                        for i in range(5):
+                            if i < len(back_images):
+                                with rel_cols[i]:
+                                    st.image(back_images[i])
+                                    st.markdown(f"**{BACK_TITLES[i]}**")
+                                    st.markdown(f'{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})')
+                                    st.markdown(f'**{BACK_PRICES[i]}**')
 
-            # --- MAIN GRID ---
+            # MAIN PRODUCT GRID
             cols = st.columns(4)
             for c in range(4):
                 idx = r * 4 + c
@@ -176,7 +182,7 @@ else:
                             else:
                                 st.toast("Demo restricted to Reebok.")
     else:
-        # --- DETAIL VIEW ---
+        # DETAIL VIEW
         item = st.session_state.user_interest
         if st.button("⬅ Back to Collection"):
             st.session_state.user_interest = None

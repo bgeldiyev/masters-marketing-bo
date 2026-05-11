@@ -76,11 +76,12 @@ st.markdown("""
 
     /* RECOMMENDATION CONTAINER */
     [data-testid="stVerticalBlock"] > div:has(.rec-container) {
-        background-color: #f8f9fa !important; 
+        background-color: #eeeeee !important; /* Darker gray like before */
         border-radius: 12px;
-        padding: 20px !important;
+        padding: 25px !important;
+        margin-top: 20px !important;
         margin-bottom: 20px !important;
-        border: 1px solid #eee;
+        border: 2px solid #dddddd; /* Adds a visible outer frame */
     }
 
     /* MOBILE FIX: Stack columns on small screens */

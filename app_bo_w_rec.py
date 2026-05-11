@@ -37,34 +37,29 @@ st.markdown("""
         object-fit: cover !important; border-radius: 8px; border: 1px solid #eee;
     }
 
-    /* --- THE NUCLEAR BOX FIX (RE-ENGINEERED) --- */
-    /* Target the specific container wrapper */
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) {
-        background-color: #888888 !important; 
-        border: 2px solid #666666 !important;
-        border-radius: 15px !important;
-        /* This removes the 'wash out' filter you had before */
-        filter: none !important;
+    /* --- NEW FAILSAFE GRAY BOX --- */
+    /* This targets the standard Streamlit border container directly */
+    [data-testid="stVerticalBlockBorderWrapper"] {
+    background-color: #666666 !important; /* Medium Gray */
+    border: 1px solid #888888 !important;
+    border-radius: 12px !important;
     }
 
-    /* Target the inner div that Streamlit uses for background colors */
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) > div {
-        background-color: #888888 !important;
+    /* This forces the inner styling to be transparent so the gray shows through */
+    [data-testid="stVerticalBlockBorderWrapper"] > div {
+    background-color: transparent !important;
     }
 
-    /* Force all text inside to be White so it doesn't get lost on the gray */
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) h3,
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) p,
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) b,
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) div {
-        color: #FFFFFF !important;
+    /* Force all text inside any bordered container to be white */
+    [data-testid="stVerticalBlockBorderWrapper"] * {
+    color: white !important;
     }
 
-    /* Optional: Keep the image backgrounds white so the shoes stay visible */
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) img {
-        background-color: #FFFFFF !important;
-        padding: 5px;
-        border-radius: 10px;
+    /* Keep the actual product images clean with a white background */
+    [data-testid="stVerticalBlockBorderWrapper"] img {
+    background-color: white !important;
+    padding: 10px;
+    border-radius: 8px;
     }
 
     /* Detail View Image Styling */

@@ -138,10 +138,11 @@ else:
         for r in range(4):
             # THE RECOMMENDATION PANEL
             if r == 1 and st.session_state.viewed_history:
+                st.markdown('<div class="rec-panel">', unsafe_allow_html=True)   # ← BOX STARTS HERE
+
                 with st.container():
-                    st.markdown('<div class="rec-panel">', unsafe_allow_html=True)   # FIXED LINE
                     st.subheader("Similar to what you just viewed")
-        
+
                     rel_cols = st.columns(5) 
                     for i in range(5):
                         if i < len(back_images):
@@ -151,7 +152,8 @@ else:
                                 st.markdown(f'<p style="color: #f1c40f !important; margin: 0;">{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})</p>', unsafe_allow_html=True)
                                 st.markdown(f'<p style="color: white !important; font-weight: bold; margin: 0;">{BACK_PRICES[i]}</p>', unsafe_allow_html=True)
 
-                    st.markdown('</div>', unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)   # ← BOX ENDS HERE
+
                 
             # MAIN GRID
             cols = st.columns(4)

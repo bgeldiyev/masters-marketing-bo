@@ -8,7 +8,6 @@ st.set_page_config(page_title="Best Shop | Mixed Portfolio", layout="wide")
 # --- 2. THE COMPREHENSIVE CSS ---
 st.markdown("""
     <style>
-    /* Global layout tweaks */
     .block-container { padding-top: 3.5rem !important; }
     
     /* Branding */
@@ -38,39 +37,10 @@ st.markdown("""
         object-fit: cover !important; border-radius: 8px; border: 1px solid #eee;
     }
 
-    /* --- THE SURGICAL GRAY PANEL FIX --- */
-    /* We target a VerticalBlock that is a DIRECT child of another VerticalBlock.
-       This ensures we hit the 'inner_box' container and not the whole page.
-    */
-    div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"]:has(.web-container-anchor) {
-        background-color: #555555 !important;
-        padding: 40px !important;
-        border-radius: 20px !important;
-        border: 1px solid #777777 !important;
-        margin: 20px 0px !important;
-    }
-
-    /* Force all text inside only THAT box to be white */
-    div[data-testid="stVerticalBlock"]:has(.web-container-anchor) * {
-        color: white !important;
-    }
-
-    /* Ensure images in the gray box have white backgrounds so they pop */
-    div[data-testid="stVerticalBlock"]:has(.web-container-anchor) img {
-        background-color: white !important;
-        padding: 10px;
-        border-radius: 10px;
-    }
-
-    /* Detail View Image Styling */
-    .small-img img {
-        height: 80px !important; width: auto !important;
-        border-radius: 4px; border: 1px solid #ddd; object-fit: contain !important;
-    }
-
     /* Rating & Prices */
     .rating-text { color: #f39c12; font-weight: bold; font-size: 14px; margin: 0; }
     .price-text { font-size: 18px; font-weight: bold; color: #333; margin: 0; }
+    
     .color-circle {
         height: 22px; width: 22px; border-radius: 50%; display: inline-block; 
         border: 2px solid #ddd; margin-right: 8px;
@@ -145,26 +115,28 @@ if not all_images:
 else:
     if st.session_state.user_interest is None:
         for r in range(4):
-            # THE RECOMMENDATION PANEL
+            # THE RECOMMENDATION PANEL (Using Inline HTML for absolute certainty)
             if r == 1 and st.session_state.viewed_history:
-                # Outer wrapper container
-                with st.container():
-                    # Inner container that the CSS will turn gray
-                    inner_box = st.container()
-                    with inner_box:
-                        st.markdown('<span class="web-container-anchor"></span>', unsafe_allow_html=True)
-                        st.subheader("Similar to what you just viewed")
-                        
-                        rel_cols = st.columns(5) 
-                        for i in range(5):
-                            if i < len(back_images):
-                                with rel_cols[i]:
-                                    st.image(back_images[i])
-                                    st.markdown(f"**{BACK_TITLES[i]}**")
-                                    st.markdown(f'{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})')
-                                    st.markdown(f'**{BACK_PRICES[i]}**')
+                # Open the colored box
+                st.markdown("""
+                    <div style="background-color: #555555; padding: 40px; border-radius: 20px; margin: 20px 0px;">
+                        <h3 style="color: white !important; margin-bottom: 25px;">Similar to what you just viewed</h3>
+                """, unsafe_allow_html=True)
+                
+                rel_cols = st.columns(5) 
+                for i in range(5):
+                    if i < len(back_images):
+                        with rel_cols[i]:
+                            st.image(back_images[i])
+                            # Using HTML for text to ensure it stays white on the gray
+                            st.markdown(f'<b style="color: white !important;">{BACK_TITLES[i]}</b>', unsafe_allow_html=True)
+                            st.markdown(f'<p style="color: #f1c40f !important; margin: 0;">{get_star_string(BACK_RATINGS[i])} ({BACK_RATINGS[i]})</p>', unsafe_allow_html=True)
+                            st.markdown(f'<p style="color: white !important; font-weight: bold; margin: 0;">{BACK_PRICES[i]}</p>', unsafe_allow_html=True)
+                
+                # Close the colored box
+                st.markdown("</div>", unsafe_allow_html=True)
 
-            # MAIN PRODUCT GRID
+            # MAIN GRID
             cols = st.columns(4)
             for c in range(4):
                 idx = r * 4 + c
@@ -196,14 +168,10 @@ else:
             sub1, sub2, _ = st.columns([1, 1, 1.5]) 
             if len(all_images) > 16:
                 with sub1:
-                    st.markdown('<div class="small-img">', unsafe_allow_html=True)
                     st.image(all_images[16])
-                    st.markdown('</div>', unsafe_allow_html=True)
             if len(all_images) > 17:
                 with sub2:
-                    st.markdown('<div class="small-img">', unsafe_allow_html=True)
                     st.image(all_images[17])
-                    st.markdown('</div>', unsafe_allow_html=True)
                 
         with c_buy:
             title_col, heart_col = st.columns([5, 1])

@@ -37,29 +37,30 @@ st.markdown("""
         object-fit: cover !important; border-radius: 8px; border: 1px solid #eee;
     }
 
-    /* --- NEW FAILSAFE GRAY BOX --- */
-    /* This targets the standard Streamlit border container directly */
-    [data-testid="stVerticalBlockBorderWrapper"] {
-    background-color: #666666 !important; /* Medium Gray */
-    border: 1px solid #888888 !important;
-    border-radius: 12px !important;
+    /* --- THE FINAL GRAY BOX FIX --- */
+    /* 1. Target the outer wrapper */
+    [data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) {
+        background-color: #555555 !important;
+        border: 1px solid #444444 !important;
+        border-radius: 12px !important;
     }
 
-    /* This forces the inner styling to be transparent so the gray shows through */
-    [data-testid="stVerticalBlockBorderWrapper"] > div {
-    background-color: transparent !important;
+    /* 2. Target the INNER containers that are currently forcing white */
+    [data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) [data-testid="stVerticalBlock"],
+    [data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) [data-testid="stVerticalBlockBorderWrapper"] > div:nth-child(1) {
+        background-color: transparent !important;
     }
 
-    /* Force all text inside any bordered container to be white */
-    [data-testid="stVerticalBlockBorderWrapper"] * {
-    color: white !important;
+    /* 3. Force text to white so it is readable on the gray */
+    [data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) * {
+        color: #FFFFFF !important;
     }
 
-    /* Keep the actual product images clean with a white background */
-    [data-testid="stVerticalBlockBorderWrapper"] img {
-    background-color: white !important;
-    padding: 10px;
-    border-radius: 8px;
+    /* 4. Keep image backgrounds white so the products look clean */
+    [data-testid="stVerticalBlockBorderWrapper"]:has(.web-container-anchor) img {
+        background-color: #FFFFFF !important;
+        padding: 8px;
+        border-radius: 8px;
     }
 
     /* Detail View Image Styling */
